@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
+import Onboarding from './pages/Onboarding'
 
 import './App.css'
 
@@ -70,6 +71,14 @@ function App() {
                 </ProtectedRoute>
               } 
             />
+            <Route
+                path="/onboarding"
+                element={
+                  <ProtectedRoute>
+                    <Onboarding />
+                  </ProtectedRoute>
+                }
+              />
             <Route path="/" element={<Navigate to="/dashboard" />} />
           </Routes>
         </div>

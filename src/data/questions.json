@@ -1,0 +1,232 @@
+[
+    {
+      "id": "q1",
+      "type": "choice",
+      "key": "q1",
+      "title": "It's a free weekend. Which side project sounds most fun?",
+      "options": [
+        { "id": "a", "label": "Build/fix something tangible", "weights": { "practical": 2 } },
+        { "id": "b", "label": "Research or analyze a topic", "weights": { "analytical": 2 } },
+        { "id": "c", "label": "Make something creative", "weights": { "creative": 2 } },
+        { "id": "d", "label": "Do something social or helpful", "weights": { "social": 2 } },
+        { "id": "e", "label": "Brainstorm a money-making idea", "weights": { "entrepreneurial": 2 } },
+        { "id": "f", "label": "Organize space, budget or systems", "weights": { "organized": 2 } }
+      ],
+      "layout": "grid",
+      "required": true,
+      "hotkeys": ["1","2","3","4","5","6"]
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "key": "q2",
+      "title": "Pick a new skill to monetize:",
+      "options": [
+        { "id": "a", "label": "Hands-on trade", "weights": { "practical": 2 } },
+        { "id": "b", "label": "Tech/data/science", "weights": { "analytical": 2 } },
+        { "id": "c", "label": "Creative skill (design/photo/craft)", "weights": { "creative": 2 } },
+        { "id": "d", "label": "Coaching/teaching/community", "weights": { "social": 2 } },
+        { "id": "e", "label": "Entrepreneurship/marketing", "weights": { "entrepreneurial": 2 } },
+        { "id": "f", "label": "Admin/finance", "weights": { "organized": 2 } }
+      ],
+      "layout": "grid",
+      "required": true,
+      "hotkeys": ["1","2","3","4","5","6"]
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "key": "q3",
+      "title": "At a community fundraiser, which role is yours?",
+      "options": [
+        { "id": "a", "label": "Set up equipment & logistics", "weights": { "practical": 2 } },
+        { "id": "b", "label": "Research the best strategies", "weights": { "analytical": 2 } },
+        { "id": "c", "label": "Design the visuals & theme", "weights": { "creative": 2 } },
+        { "id": "d", "label": "Outreach & energize people", "weights": { "social": 2 } },
+        { "id": "e", "label": "Lead & coordinate", "weights": { "entrepreneurial": 2 } },
+        { "id": "f", "label": "Track donations & details", "weights": { "organized": 2 } }
+      ],
+      "layout": "grid",
+      "required": true
+    },
+    {
+      "id": "q4",
+      "type": "choice",
+      "key": "q4",
+      "title": "Your natural working style?",
+      "options": [
+        { "id": "a", "label": "Plan & structure first", "weights": { "organized": 2 } },
+        { "id": "b", "label": "Hands-on, learn by doing", "weights": { "practical": 2 } },
+        { "id": "c", "label": "Collaborate & bounce ideas", "weights": { "social": 2 } },
+        { "id": "d", "label": "Go deep solo", "weights": { "analytical": 2 } },
+        { "id": "e", "label": "Take the lead", "weights": { "entrepreneurial": 2 } },
+        { "id": "f", "label": "Add creative flair", "weights": { "creative": 2 } }
+      ],
+      "layout": "grid",
+      "required": true
+    },
+    {
+      "id": "q5",
+      "type": "choice",
+      "key": "q5",
+      "title": "Your favorite kind of problem?",
+      "options": [
+        { "id": "a", "label": "Practical & tangible", "weights": { "practical": 2 } },
+        { "id": "b", "label": "Analytical & data-driven", "weights": { "analytical": 2 } },
+        { "id": "c", "label": "Creative & expressive", "weights": { "creative": 2 } },
+        { "id": "d", "label": "People & relationships", "weights": { "social": 2 } },
+        { "id": "e", "label": "Business & growth", "weights": { "entrepreneurial": 2 } },
+        { "id": "f", "label": "Organization & efficiency", "weights": { "organized": 2 } }
+      ],
+      "layout": "grid",
+      "required": true
+    },
+    {
+      "id": "q6",
+      "type": "choice",
+      "key": "q6",
+      "title": "Main reason you'd start a side business?",
+      "options": [
+        { "id": "a", "label": "Use practical skills", "weights": { "practical": 2 } },
+        { "id": "b", "label": "Explore ideas/knowledge", "weights": { "analytical": 2 } },
+        { "id": "c", "label": "Express creativity", "weights": { "creative": 2 } },
+        { "id": "d", "label": "Help or connect with people", "weights": { "social": 2 } },
+        { "id": "e", "label": "Make money / build a venture", "weights": { "entrepreneurial": 2 } },
+        { "id": "f", "label": "Have a structured project", "weights": { "organized": 2 } }
+      ],
+      "layout": "grid",
+      "required": true
+    },
+    {
+      "id": "q7",
+      "type": "choice",
+      "key": "business_model",
+      "title": "What format appeals most?",
+      "options": [
+        { "id": "a", "label": "Product (physical/digital)", "flags": { "business_model": "product" }, "weights": { "practical": 1, "creative": 1 } },
+        { "id": "b", "label": "Service (coaching/consulting)", "flags": { "business_model": "service" }, "weights": { "social": 1, "analytical": 1 } },
+        { "id": "c", "label": "Content (blog/video)", "flags": { "business_model": "content" }, "weights": { "creative": 1 } },
+        { "id": "d", "label": "Community (membership/events)", "flags": { "business_model": "community" }, "weights": { "social": 1, "entrepreneurial": 1 } },
+        { "id": "e", "label": "Gig (platform-based)", "flags": { "business_model": "gig" }, "weights": { "practical": 1, "organized": 1 } }
+      ],
+      "layout": "list",
+      "required": true
+    },
+    {
+      "id": "q8",
+      "type": "slider",
+      "key": "tech_comfort",
+      "title": "How comfortable are you with new digital tools?",
+      "leftLabel": "Not at all",
+      "rightLabel": "Very",
+      "min": 1,
+      "max": 5,
+      "propertyKey": "tech_comfort",
+      "required": true
+    },
+    {
+      "id": "q9",
+      "type": "choice",
+      "key": "audience",
+      "title": "Who would you most like to serve?",
+      "options": [
+        { "id": "a", "label": "Local community", "flags": { "audience": "local" }, "weights": { "social": 1 } },
+        { "id": "b", "label": "Businesses & professionals", "flags": { "audience": "business" }, "weights": { "entrepreneurial": 1, "organized": 1 } },
+        { "id": "c", "label": "A specific niche group", "flags": { "audience": "niche_group" } },
+        { "id": "d", "label": "Broad online audience", "flags": { "audience": "broad_online" }, "weights": { "entrepreneurial": 1 } },
+        { "id": "e", "label": "Students or learners", "flags": { "audience": "education" }, "weights": { "social": 1 } },
+        { "id": "f", "label": "Prefer low-contact model", "flags": { "audience": "low_contact" }, "weights": { "analytical": 1 } }
+      ],
+      "layout": "list",
+      "required": true
+    },
+    {
+      "id": "q10",
+      "type": "slider",
+      "key": "structured_flexible",
+      "title": "Do you prefer structure or flexibility?",
+      "leftLabel": "Structure",
+      "rightLabel": "Flexibility",
+      "min": 1,
+      "max": 5,
+      "propertyKey": "structured_flexible",
+      "required": true
+    },
+    {
+      "id": "q11",
+      "type": "slider",
+      "key": "independent_team",
+      "title": "Work solo or with a team?",
+      "leftLabel": "Solo",
+      "rightLabel": "Team",
+      "min": 1,
+      "max": 5,
+      "propertyKey": "independent_team",
+      "required": true
+    },
+    {
+      "id": "q12",
+      "type": "choice",
+      "key": "content_draw",
+      "title": "What content draws you in most?",
+      "options": [
+        { "id": "a", "label": "DIY/tech how-tos", "weights": { "practical": 1, "analytical": 1 } },
+        { "id": "b", "label": "Science/educational deep dives", "weights": { "analytical": 2 } },
+        { "id": "c", "label": "Art/design/creative inspo", "weights": { "creative": 2 } },
+        { "id": "d", "label": "People & personal growth stories", "weights": { "social": 2 } },
+        { "id": "e", "label": "Business/entrepreneurship", "weights": { "entrepreneurial": 2 } },
+        { "id": "f", "label": "Productivity & organizing tips", "weights": { "organized": 2 } }
+      ],
+      "layout": "grid",
+      "required": true
+    },
+    {
+      "id": "q13",
+      "type": "choice",
+      "key": "first_step",
+      "title": "If launching tomorrow, what's your first move?",
+      "options": [
+        { "id": "a", "label": "Build the product / set up service", "weights": { "practical": 2 } },
+        { "id": "b", "label": "Research & plan", "weights": { "analytical": 2 } },
+        { "id": "c", "label": "Branding/design", "weights": { "creative": 2 } },
+        { "id": "d", "label": "Start marketing/networking", "weights": { "entrepreneurial": 2, "social": 1 } },
+        { "id": "e", "label": "Budget & logistics", "weights": { "organized": 2 } },
+        { "id": "f", "label": "Find a mentor/partner", "weights": { "social": 2, "entrepreneurial": 1 } }
+      ],
+      "layout": "grid",
+      "required": true
+    },
+    {
+      "id": "q14",
+      "type": "choice",
+      "key": "past_strength",
+      "title": "In past projects you did well at…",
+      "options": [
+        { "id": "a", "label": "Hands-on building/fixing", "weights": { "practical": 2 } },
+        { "id": "b", "label": "Research/analysis", "weights": { "analytical": 2 } },
+        { "id": "c", "label": "Creative/inventive work", "weights": { "creative": 2 } },
+        { "id": "d", "label": "Teamwork/helping others", "weights": { "social": 2 } },
+        { "id": "e", "label": "Leading or persuading", "weights": { "entrepreneurial": 2 } },
+        { "id": "f", "label": "Organizing & planning", "weights": { "organized": 2 } }
+      ],
+      "layout": "grid",
+      "required": true
+    },
+    {
+      "id": "q15",
+      "type": "choice",
+      "key": "motivation",
+      "title": "What keeps you going during challenges?",
+      "options": [
+        { "id": "a", "label": "Seeing tangible results", "weights": { "practical": 2 } },
+        { "id": "b", "label": "Learning & solving", "weights": { "analytical": 2 } },
+        { "id": "c", "label": "Creative expression", "weights": { "creative": 2 } },
+        { "id": "d", "label": "Helping people", "weights": { "social": 2 } },
+        { "id": "e", "label": "Winning & payoff", "weights": { "entrepreneurial": 2 } },
+        { "id": "f", "label": "Clear plan & routine", "weights": { "organized": 2 } }
+      ],
+      "layout": "grid",
+      "required": true
+    }
+  ]
+  
