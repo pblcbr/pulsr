@@ -7,7 +7,7 @@ import Onboarding from './pages/Onboarding'
 
 import './App.css'
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, requiresOnboarding = false }) => {
   const { user, loading } = useAuth()
   
   if (loading) {
@@ -20,25 +20,40 @@ const ProtectedRoute = ({ children }) => {
       </div>
     )
   }
+
+  if (!user) {
+    return <Navigate to="/login" />
+  }
+
+  // Assuming Supabase user has a metadata flag for onboarding completion
+  const hasCompletedOnboarding = user.user_metadata?.has_completed_onboarding
+
+  if (requiresOnboarding && !hasCompletedOnboarding) {
+    return <Navigate to="/onboarding" />
+  }
   
-  return user ? children : <Navigate to="/login" />
+  return children
 }
 
 const PublicRoute = ({ children }) => {
   const { user, loading } = useAuth()
-  
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <div className="animate-spin rounded-full border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading..</p>
         </div>
       </div>
     )
   }
-  
-  return user ? <Navigate to="/dashboard" /> : children
+
+  if (user) {
+    return <Navigate to="/dashboard" />
+  }
+
+  return children
 }
 
 function App() {
@@ -66,7 +81,7 @@ function App() {
             <Route 
               path="/dashboard" 
               element={
-                <ProtectedRoute>
+                <ProtectedRoute requiresOnboarding={true}>
                   <Dashboard />
                 </ProtectedRoute>
               } 

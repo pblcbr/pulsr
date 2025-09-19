@@ -8,6 +8,7 @@ import clsx from "clsx";
 import ProgressBar from "./ProgressBar";
 import computeResults from "../utils/computeResults";
 import { useAuth } from "../contexts/AuthContext"; 
+import ResultsCard from "./ResultsCard";
 
 const schema = z.record(z.any());
 
@@ -16,6 +17,7 @@ function Questionnaire({ questions, onComplete }) {
   const [step, setStep] = useState(0);
   const current = questions[step];
   const total = questions.length;
+  const [summary, setSummary] = useState(null);
 
   // ---- AUTH  ----
   if (user === undefined) {
@@ -96,8 +98,9 @@ function Questionnaire({ questions, onComplete }) {
   }
 
   function onSubmit(values) {
-    const summary = computeResults(values, questions);
-    if (onComplete) onComplete(summary, { user });
+    const resultSummary = computeResults(values, questions);
+    setSummary(resultSummary);
+    if (onComplete) onComplete(resultSummary, { user });
   }
 
   const variants = {
@@ -105,6 +108,21 @@ function Questionnaire({ questions, onComplete }) {
     enter: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 300, damping: 24 } },
     exit: { opacity: 0, x: -40, transition: { duration: 0.2 } },
   };
+
+  if (summary) {
+    return (
+      <motion.div
+        key="results"
+        variants={variants}
+        initial="initial"
+        animate="enter"
+        exit="exit"
+        className="rounded-2xl bg-white p-6 shadow-lg"
+      >
+        <ResultsCard summary={summary} />
+      </motion.div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="relative" aria-live="polite">
