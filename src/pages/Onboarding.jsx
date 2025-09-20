@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Questionnaire from "../components/Questionnaire";
 import { supabase } from "../lib/supabase";
-import { saveOnboardingResults } from "../services/profileService";
 import { useAuth } from "../contexts/AuthContext";
 import computeResults from "../utils/computeResults";
 
@@ -73,9 +72,10 @@ function Onboarding() {
   const [errorMessage, setErrorMessage] = useState(null); // stores any fetch error
 
   const { user } = useAuth();
-  
-  async function handleOnboardingComplete(values, user) {
-    if(!user) return
+  const navigate = useNavigate();
+
+  async function handleOnboardingComplete(values) {
+    if (!user) return;
     try {
       const results = computeResults(values, questions);
 
@@ -99,12 +99,15 @@ function Onboarding() {
 
       if (error) {
         console.error("Error saving onboarding results:", error);
+        alert("Error al guardar los resultados. Por favor, inténtalo de nuevo.");
       } else {
         console.log("Saved onboarding results:", data);
         // mark as completed in user metadata
         await supabase.auth.updateUser({
           data: { has_completed_onboarding: true },
         });
+        alert("¡Onboarding completado! Tu perfil ha sido actualizado.");
+        navigate("/profile");
       }
     } catch (err) {
       console.error("Unexpected error saving onboarding results:", err);
@@ -213,7 +216,7 @@ function Onboarding() {
             No questions available.
           </p>
         ) : (
-          <Questionnaire questions={questions} onComplete={() => handleOnboardingComplete(user)} />
+          <Questionnaire questions={questions} onComplete={handleOnboardingComplete} />
         )}
       </div>
     </div>
