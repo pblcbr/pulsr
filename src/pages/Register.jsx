@@ -33,7 +33,8 @@ const Register = () => {
         setError(error.message)
       } else {
         // User is automatically signed in after registration
-        navigate('/dashboard')
+        console.log("Navigating to onboarding…");
+        navigate('/onboarding')
       }
     } catch (err) {
       setError('An unexpected error occurred')

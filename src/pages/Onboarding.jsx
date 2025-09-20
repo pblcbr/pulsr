@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import Questionnaire from "../components/Questionnaire";
 import { supabase } from "../lib/supabase";
 import { saveOnboardingResults } from "../services/profileService";
+import { useAuth } from "../contexts/AuthContext";
+import computeResults from "../utils/computeResults";
 
 // Simple loading spinner while data fetches
 function inlineSpinner() {
@@ -70,6 +72,45 @@ function Onboarding() {
   const [questions, setQuestions] = useState(null);    // stores the formatted questions
   const [errorMessage, setErrorMessage] = useState(null); // stores any fetch error
 
+  const { user } = useAuth();
+  
+  async function handleOnboardingComplete(values, user) {
+    if(!user) return
+    try {
+      const results = computeResults(values, questions);
+
+      const { data, error } = await supabase.from("profiles").insert([
+        {
+          user_id: user.id,
+          practical: results.totals.practical,
+          creative: results.totals.creative,
+          analytical: results.totals.analytical,
+          social: results.totals.social,
+          entrepreneurial: results.totals.entrepreneurial,
+          organized: results.totals.organized,
+          business_model: results.business_model,
+          audience: results.audience,
+          tech_comfort: results.tech_comfort,
+          structure_flex: results.structured_flexible,
+          solo_team: results.independent_team,
+          interest_text: results.topInterests.join(", "),
+        },
+      ]);
+
+      if (error) {
+        console.error("Error saving onboarding results:", error);
+      } else {
+        console.log("Saved onboarding results:", data);
+        // mark as completed in user metadata
+        await supabase.auth.updateUser({
+          data: { has_completed_onboarding: true },
+        });
+      }
+    } catch (err) {
+      console.error("Unexpected error saving onboarding results:", err);
+    }
+  }
+
   useEffect(() => {
   let cancelled = false;
 
@@ -90,6 +131,7 @@ function Onboarding() {
 
       // 🔑 Transform Supabase rows into Questionnaire format
       const formatted = rows.map((q, i) => {
+        console.log("Raw Supabase row:", q)
         if (q.type === "slider") {
           return {
             id: q.id,
@@ -98,10 +140,11 @@ function Onboarding() {
             title: q.title,
             min: q.definition?.min ?? 1,
             max: q.definition?.max ?? 5,
-            leftLabel: q.definition?.meaning_low ?? "Low",
-            rightLabel: q.definition?.meaning_high ?? "High",
+            leftLabel: q.leftLabel ?? q.definition?.leftLabel ?? q.definition?.meaning_low ?? "Low",
+            rightLabel: q.rightLabel ?? q.definition?.rightLabel ?? q.definition?.meaning_high ?? "High",
             required: q.required ?? false,
           };
+          
         } else {
           // assume "choice" type
           const options = (q.definition?.options ?? []).map((opt, index) => ({
@@ -145,31 +188,7 @@ function Onboarding() {
   return () => { cancelled = true };
 }, []);
 
-  const navigate = useNavigate();
-
-  /**
-   * Called when the user completes the questionnaire
-   */
-  async function handleComplete(summary) {
-    try {
-      // Guardar resultados en la base de datos
-      await saveOnboardingResults(summary);
-      
-      // Mostrar mensaje de éxito
-      alert("¡Onboarding completado! Tu perfil ha sido actualizado.");
-      
-      // Redirigir al perfil del usuario
-      navigate("/profile");
-    } catch (error) {
-      console.error("Error saving onboarding results:", error);
-      alert("Error al guardar los resultados. Por favor, inténtalo de nuevo.");
-    }
-  }
-
-  // Show loading spinner while fetching data
   if (loading) return inlineSpinner();
-
-  // Show error if fetch failed
   if (errorMessage) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-8">
@@ -179,7 +198,6 @@ function Onboarding() {
     );
   }
 
-  // Render questionnaire once questions are ready
   return (
     <div className="min-h-screen bg-neutral-50">
       <div className="mx-auto max-w-3xl px-4 py-8">
@@ -190,17 +208,13 @@ function Onboarding() {
           </p>
         </div>
 
-                {(!questions || questions.length === 0) ? (
-                <p className="text-center py-12 text-neutral-500">
-                No questions available.
-                </p>
-            ) : (
-                <Questionnaire
-                questions={questions}
-                onComplete={handleComplete}
-                />
-            )}
-
+        {(!questions || questions.length === 0) ? (
+          <p className="text-center py-12 text-neutral-500">
+            No questions available.
+          </p>
+        ) : (
+          <Questionnaire questions={questions} onComplete={() => handleOnboardingComplete(user)} />
+        )}
       </div>
     </div>
   );
