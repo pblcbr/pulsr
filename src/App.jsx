@@ -4,6 +4,8 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import Onboarding from './pages/Onboarding'
+import UserProfile from './pages/UserProfile'
+import ContentCalendar from './pages/ContentCalendar'
 
 import './App.css'
 
@@ -79,6 +81,22 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+            <Route 
+              path="/profile" 
+              element={
+                <ProtectedRoute>
+                  <UserProfile />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/content-calendar" 
+              element={
+                <ProtectedRoute>
+                  <ContentCalendar />
+                </ProtectedRoute>
+              } 
+            />
             <Route path="/" element={<Navigate to="/dashboard" />} />
           </Routes>
         </div>

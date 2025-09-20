@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Questionnaire from "../components/Questionnaire";
 import { supabase } from "../lib/supabase";
+import { saveOnboardingResults } from "../services/profileService";
 
 // Simple loading spinner while data fetches
 function inlineSpinner() {
@@ -143,21 +145,25 @@ function Onboarding() {
   return () => { cancelled = true };
 }, []);
 
+  const navigate = useNavigate();
+
   /**
    * Called when the user completes the questionnaire
    */
-  function handleComplete(summary) {
-    alert(
-      [
-        `Top interests: ${summary.topInterests.join(", ")}`,
-        `Business model: ${summary.business_model}`,
-        `Audience: ${summary.audience}`,
-        `Tech comfort: ${summary.tech_comfort}`,
-        `Structure vs Flex: ${summary.structured_flexible}`,
-        `Solo vs Team: ${summary.independent_team}`,
-        `Totals: ${JSON.stringify(summary.totals)}`,
-      ].join("\n")
-    );
+  async function handleComplete(summary) {
+    try {
+      // Guardar resultados en la base de datos
+      await saveOnboardingResults(summary);
+      
+      // Mostrar mensaje de éxito
+      alert("¡Onboarding completado! Tu perfil ha sido actualizado.");
+      
+      // Redirigir al perfil del usuario
+      navigate("/profile");
+    } catch (error) {
+      console.error("Error saving onboarding results:", error);
+      alert("Error al guardar los resultados. Por favor, inténtalo de nuevo.");
+    }
   }
 
   // Show loading spinner while fetching data

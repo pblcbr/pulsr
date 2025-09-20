@@ -34,11 +34,57 @@ export const AuthProvider = ({ children }) => {
   }, [])
 
   const signUp = async (email, password) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    })
-    return { data, error }
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      })
+      
+      if (error) {
+        console.error('Auth signup error:', error)
+        return { data, error }
+      }
+      
+      // Si el registro fue exitoso, crear perfil
+      if (data.user) {
+        console.log('User created successfully:', data.user.id)
+        
+        try {
+          console.log('Attempting to create profile for user:', data.user.id)
+          
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .insert({
+              user_id: data.user.id,
+              sector: '',
+              audience: '',
+              tone: '',
+              positioning_statement: ''
+            })
+            .select()
+          
+          if (profileError) {
+            console.error('Error creating profile:', profileError)
+            console.error('Profile error details:', {
+              message: profileError.message,
+              details: profileError.details,
+              hint: profileError.hint,
+              code: profileError.code
+            })
+            // No fallar el registro si hay error creando el perfil
+          } else {
+            console.log('Profile created successfully:', profileData)
+          }
+        } catch (profileError) {
+          console.error('Exception creating profile:', profileError)
+        }
+      }
+      
+      return { data, error }
+    } catch (error) {
+      console.error('Signup exception:', error)
+      return { data: null, error }
+    }
   }
 
   const signIn = async (email, password) => {
