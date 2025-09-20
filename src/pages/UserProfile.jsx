@@ -17,15 +17,29 @@ const UserProfile = () => {
     try {
       // Cargar perfil real de la base de datos
       const userProfile = await getCurrentUserProfile();
+      console.log('Loaded profile:', userProfile);
+      
+      if (!userProfile) {
+        console.log('No profile found, user needs to complete onboarding');
+        setProfile(null);
+        setPersonalityAnalysis(null);
+        return;
+      }
+      
       setProfile(userProfile);
       
       // Analizar personalidad solo si hay datos del onboarding
-      if (userProfile && userProfile.analytical > 0) {
+      if (userProfile && (userProfile.analytical > 0 || userProfile.practical > 0)) {
         const analysis = analyzePersonality(userProfile);
         setPersonalityAnalysis(analysis);
+        console.log('Personality analysis:', analysis);
+      } else {
+        console.log('Profile exists but no onboarding data yet');
       }
     } catch (error) {
       console.error('Error loading profile:', error);
+      setProfile(null);
+      setPersonalityAnalysis(null);
     } finally {
       setLoading(false);
     }
@@ -45,7 +59,31 @@ const UserProfile = () => {
   if (!profile || !personalityAnalysis) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-600">Error al cargar el perfil</p>
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          Perfil no encontrado
+        </h2>
+        <p className="text-gray-600 mb-4">
+          No se encontró un perfil para tu usuario. Esto puede suceder si:
+        </p>
+        <ul className="text-gray-600 text-left max-w-md mx-auto mb-6">
+          <li>• No has completado el onboarding</li>
+          <li>• Hay un problema con la base de datos</li>
+          <li>• Tu sesión expiró</li>
+        </ul>
+        <div className="space-x-4">
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Recargar página
+          </button>
+          <button 
+            onClick={() => window.location.href = '/onboarding'} 
+            className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+          >
+            Ir al Onboarding
+          </button>
+        </div>
       </div>
     );
   }

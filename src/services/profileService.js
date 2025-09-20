@@ -12,15 +12,18 @@ export const getCurrentUserProfile = async () => {
       throw new Error('No hay usuario autenticado');
     }
 
-    const { data: profile, error } = await supabase
+    const { data: profiles, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('user_id', user.id)
-      .single();
+      .order('created_at', { ascending: false });
 
     if (error) {
       throw error;
     }
+
+    // If multiple profiles, use the most recent one
+    const profile = profiles && profiles.length > 0 ? profiles[0] : null;
 
     return profile;
   } catch (error) {

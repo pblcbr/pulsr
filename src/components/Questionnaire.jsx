@@ -100,7 +100,7 @@ function Questionnaire({ questions, onComplete }) {
   function onSubmit(values) {
     const resultSummary = computeResults(values, questions);
     setSummary(resultSummary);
-    if (onComplete) onComplete(resultSummary, { user });
+    if (onComplete) onComplete(resultSummary);
   }
 
   const variants = {
