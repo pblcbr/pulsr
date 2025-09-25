@@ -1,4 +1,5 @@
 import { useAuth } from '../contexts/AuthContext'
+import { Link } from 'react-router-dom'
 
 const Header = () => {
   const { user, signOut } = useAuth()
@@ -12,9 +13,11 @@ const Header = () => {
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
+          <Link to="/dashboard">
           <div className="flex items-center">
             <h1 className="text-2xl font-bold text-blue-600">Pulsr</h1>
-          </div>
+            </div>
+            </Link>
           
           {/* Profile */}
           {user && (

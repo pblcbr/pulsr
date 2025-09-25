@@ -23,7 +23,7 @@ function Onboarding() {
   const navigate = useNavigate();
 
   async function handleOnboardingComplete(results) {
-    if (!user) return;
+    if (!user) return navigate('/login');
     try {
       console.log("Received results from questionnaire:", results);
 
@@ -54,8 +54,7 @@ function Onboarding() {
         await supabase.auth.updateUser({
           data: { has_completed_onboarding: true },
         });
-        alert("¡Onboarding completado! Tu perfil ha sido actualizado.");
-        navigate("/profile");
+        // alert("¡Onboarding completado! Tu perfil ha sido actualizado.");
       }
     } catch (err) {
       console.error("Unexpected error saving onboarding results:", err);

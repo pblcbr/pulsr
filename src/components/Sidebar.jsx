@@ -14,20 +14,37 @@ const Sidebar = () => {
       <div className="p-6">
         {/* User Profile */}
         <div className="mb-8">
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-lg">
-                {user?.email?.charAt(0).toUpperCase()}
-              </span>
+          <Link to="/profile" className="block">
+            <div
+              className={`flex items-center space-x-3 p-2 rounded-md transition-colors ${
+                isActive('/profile') ? 'bg-blue-100' : 'hover:bg-gray-100'
+              }`}
+            >
+              <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
+                <span className="text-white font-bold text-lg">
+                  {user?.email?.charAt(0).toUpperCase()}
+                </span>
+              </div>
+              <div>
+                <p
+                  className={`text-sm font-medium ${
+                    isActive('/profile') ? 'text-blue-700' : 'text-gray-900'
+                  }`}
+                >
+                  {user?.email?.split('@')[0]}
+                </p>
+                <p
+                  className={`text-xs ${
+                    isActive('/profile') ? 'text-blue-600' : 'text-gray-500'
+                  }`}
+                >
+                  User
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-medium text-gray-900">
-                {user?.email?.split('@')[0]}
-              </p>
-              <p className="text-xs text-gray-500">Usuario</p>
-            </div>
-          </div>
+          </Link>
         </div>
+
 
         {/* Navigation */}
         <nav className="space-y-2">
@@ -45,7 +62,7 @@ const Sidebar = () => {
             Dashboard
           </Link>
 
-          <Link 
+          {/* <Link 
             to="/profile"
             className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
               isActive('/profile') 
@@ -56,8 +73,8 @@ const Sidebar = () => {
             <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
-            Mi Perfil
-          </Link>
+            My Profile
+          </Link> */}
           
           <Link 
             to="/content-calendar"

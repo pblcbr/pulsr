@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import clsx from "clsx";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 function ResultsCard({ summary }) {
   const { user } = useAuth();
@@ -11,6 +12,7 @@ function ResultsCard({ summary }) {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   async function handleSave() {
     if (!user) return; // not logged in, shouldn’t happen here
@@ -24,6 +26,8 @@ function ResultsCard({ summary }) {
 
       if (error) throw error;
       setSaved(true);
+      console.log("navigating to dashboard")
+      navigate('/dashboard');
     } catch (err) {
       setError("Failed to save. Please try again.");
       console.error("Error saving writing interests:", err);
