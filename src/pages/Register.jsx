@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 
 const Register = () => {
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -12,36 +14,50 @@ const Register = () => {
   const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError('')
+  e.preventDefault();
+  setError('');
 
-    if (password !== confirmPassword) {
-      setError('Passwords do not match')
-      return
-    }
-
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters')
-      return
-    }
-
-    setLoading(true)
-
-    try {
-      const { data, error } = await signUp(email, password)
-      if (error) {
-        setError(error.message)
-      } else {
-        // User is automatically signed in after registration
-        console.log("Navigating to onboarding…");
-        navigate('/onboarding')
-      }
-    } catch (err) {
-      setError('An unexpected error occurred')
-    } finally {
-      setLoading(false)
-    }
+  // Basic validation
+  if (password !== confirmPassword) {
+    setError('Passwords do not match');
+    return;
   }
+
+  if (password.length < 6) {
+    setError('Password must be at least 6 characters');
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    // Step 1: Create the user in Supabase Auth, including profile names for profile creation
+    const { data, error } = await signUp(email, password, { firstName, lastName });
+
+    if (error) {
+      setError(error.message);
+      return;
+    }
+
+    const userId = data?.user?.id;
+
+    if (!userId) {
+      setError("Unable to retrieve user ID from Supabase.");
+      return;
+    }
+
+    // Step 2: Navigate after successful signup and profile creation in AuthContext
+    console.log("Navigating to onboarding…");
+    navigate('/onboarding');
+
+  } catch (err) {
+    console.error(err);
+    setError('An unexpected error occurred');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="full-w relative overflow-hidden">
@@ -83,7 +99,43 @@ const Register = () => {
                 </div>
               )}
 
+              
+
               <form onSubmit={handleSubmit} className="space-y-8">
+              <div className="space-y-2">
+                  <label htmlFor="firstName" className="block text-sm font-bold text-gray-700">
+                    First Name
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="firstName"
+                      type="text"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      required
+                      className="w-full px-5 py-4 bg-white border-2 border-gray-200 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300 text-gray-800 font-medium"
+                      placeholder="Enter your email"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="lastName" className="block text-sm font-bold text-gray-700">
+                    Last Name
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="lastName"
+                      type="text"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      required
+                      className="w-full px-5 py-4 bg-white border-2 border-gray-200 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300 text-gray-800 font-medium"
+                      placeholder="Enter your email"
+                    />
+                  </div>
+                </div>
+
                 <div className="space-y-2">
                   <label htmlFor="email" className="block text-sm font-bold text-gray-700">
                     Email address

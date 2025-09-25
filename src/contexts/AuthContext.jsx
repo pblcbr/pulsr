@@ -33,34 +33,37 @@ export const AuthProvider = ({ children }) => {
     return () => subscription.unsubscribe()
   }, [])
 
-  const signUp = async (email, password) => {
+  const signUp = async (email, password, profile = {}) => {
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
       })
-      
+
       if (error) {
         console.error('Auth signup error:', error)
         return { data, error }
       }
-      
-      // If registration was successful, create profile
+
+      // Si el registro fue exitoso, crear perfil
       if (data.user) {
         console.log('User created successfully:', data.user.id)
-        
+
         try {
           console.log('Attempting to create profile for user:', data.user.id)
-          
+
           const { data: profileData, error: profileError } = await supabase
             .from('profiles')
             .insert({
               user_id: data.user.id,
+              firstName: profile.firstName || '',
+              lastName: profile.lastName || '',
+              sector: '',
               audience: '',
               positioning_statement: ''
             })
             .select()
-          
+
           if (profileError) {
             console.error('Error creating profile:', profileError)
             console.error('Profile error details:', {
@@ -77,7 +80,7 @@ export const AuthProvider = ({ children }) => {
           console.error('Exception creating profile:', profileError)
         }
       }
-      
+
       return { data, error }
     } catch (error) {
       console.error('Signup exception:', error)

@@ -23,7 +23,7 @@ function Onboarding() {
   const navigate = useNavigate();
 
   async function handleOnboardingComplete(results) {
-    if (!user) return;
+    if (!user) return navigate('/login');
     try {
       console.log("Received results from questionnaire:", results);
 
@@ -52,22 +52,10 @@ function Onboarding() {
       } else {
         console.log("Saved onboarding results:", data);
         // mark as completed in user metadata
-        try {
-          const { error: metadataError } = await supabase.auth.updateUser({
-            data: { has_completed_onboarding: true },
-          });
-          
-          if (metadataError) {
-            console.error("Error updating user metadata:", metadataError);
-          } else {
-            console.log("User metadata updated successfully");
-          }
-        } catch (metadataErr) {
-          console.error("Exception updating user metadata:", metadataErr);
-        }
-        
-        alert("¡Onboarding completado! Tu perfil ha sido actualizado.");
-        navigate("/profile");
+        await supabase.auth.updateUser({
+          data: { has_completed_onboarding: true },
+        });
+        // alert("¡Onboarding completado! Tu perfil ha sido actualizado.");
       }
     } catch (err) {
       console.error("Unexpected error saving onboarding results:", err);
