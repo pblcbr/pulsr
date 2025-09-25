@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }) => {
         return { data, error }
       }
       
-      // Si el registro fue exitoso, crear perfil
+      // If registration was successful, create profile
       if (data.user) {
         console.log('User created successfully:', data.user.id)
         
@@ -56,9 +56,7 @@ export const AuthProvider = ({ children }) => {
             .from('profiles')
             .insert({
               user_id: data.user.id,
-              sector: '',
               audience: '',
-              tone: '',
               positioning_statement: ''
             })
             .select()
@@ -71,7 +69,7 @@ export const AuthProvider = ({ children }) => {
               hint: profileError.hint,
               code: profileError.code
             })
-            // No fallar el registro si hay error creando el perfil
+            // Do not fail signup if there's an error creating the profile
           } else {
             console.log('Profile created successfully:', profileData)
           }

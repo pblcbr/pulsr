@@ -1,15 +1,15 @@
-// Servicio para manejar perfiles de usuario
+// Service to handle user profiles
 import { supabase } from '../lib/supabase';
 
 /**
- * Obtiene el perfil del usuario actual
+ * Gets the current user profile
  */
 export const getCurrentUserProfile = async () => {
   try {
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
-      throw new Error('No hay usuario autenticado');
+      throw new Error('No authenticated user');
     }
 
     const { data: profiles, error } = await supabase
@@ -33,14 +33,14 @@ export const getCurrentUserProfile = async () => {
 };
 
 /**
- * Actualiza el perfil del usuario
+ * Updates the user profile
  */
 export const updateUserProfile = async (profileData) => {
   try {
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
-      throw new Error('No hay usuario autenticado');
+      throw new Error('No authenticated user');
     }
 
     const { data, error } = await supabase
@@ -65,14 +65,14 @@ export const updateUserProfile = async (profileData) => {
 };
 
 /**
- * Crea un perfil para el usuario actual (si no existe)
+ * Creates a profile for the current user (if it does not exist)
  */
 export const createUserProfile = async (profileData) => {
   try {
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
-      throw new Error('No hay usuario autenticado');
+      throw new Error('No authenticated user');
     }
 
     const { data, error } = await supabase
@@ -98,7 +98,7 @@ export const createUserProfile = async (profileData) => {
 };
 
 /**
- * Guarda los resultados del onboarding en el perfil
+ * Saves onboarding results to the profile
  */
 export const saveOnboardingResults = async (onboardingResults) => {
   try {
@@ -114,7 +114,8 @@ export const saveOnboardingResults = async (onboardingResults) => {
       tech_comfort: onboardingResults.tech_comfort || 0,
       structure_flex: onboardingResults.structured_flexible || 0,
       solo_team: onboardingResults.independent_team || 0,
-      interest_text: onboardingResults.interest_text || ''
+      interest_text: onboardingResults.interest_text || '',
+      positioning_statement: onboardingResults.positioning_statement || ''
     };
 
     return await updateUserProfile(profileData);

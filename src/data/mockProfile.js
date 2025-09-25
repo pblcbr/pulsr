@@ -13,7 +13,8 @@ export const mockProfile = {
   tech_comfort: 4,
   structure_flex: 3, // Prefiere estructura
   solo_team: 2, // Prefiere trabajar solo
-  interest_text: "Análisis de datos, tecnología, emprendimiento, productividad, inteligencia artificial, startups, marketing digital, automatización"
+  interest_text: "Análisis de datos, tecnología, emprendimiento, productividad, inteligencia artificial, startups, marketing digital, automatización",
+  positioning_statement: "Data-driven entrepreneur helping businesses leverage AI and analytics for growth"
 };
 
 export default {

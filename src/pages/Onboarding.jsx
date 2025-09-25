@@ -42,6 +42,7 @@ function Onboarding() {
           structure_flex: results.structured_flexible,
           solo_team: results.independent_team,
           interest_text: results.topInterests.join(", "),
+          positioning_statement: results.positioning_statement || '',
         },
       ]);
 
@@ -51,9 +52,20 @@ function Onboarding() {
       } else {
         console.log("Saved onboarding results:", data);
         // mark as completed in user metadata
-        await supabase.auth.updateUser({
-          data: { has_completed_onboarding: true },
-        });
+        try {
+          const { error: metadataError } = await supabase.auth.updateUser({
+            data: { has_completed_onboarding: true },
+          });
+          
+          if (metadataError) {
+            console.error("Error updating user metadata:", metadataError);
+          } else {
+            console.log("User metadata updated successfully");
+          }
+        } catch (metadataErr) {
+          console.error("Exception updating user metadata:", metadataErr);
+        }
+        
         alert("¡Onboarding completado! Tu perfil ha sido actualizado.");
         navigate("/profile");
       }

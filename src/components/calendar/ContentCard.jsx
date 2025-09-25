@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { enUS } from 'date-fns/locale';
 
 const ContentCard = ({ 
   content, 
@@ -50,11 +50,11 @@ const ContentCard = ({
   };
 
   const formatTime = (date) => {
-    return format(date, 'HH:mm', { locale: es });
+    return format(date, 'HH:mm', { locale: enUS });
   };
 
   const formatDate = (date) => {
-    return format(date, 'dd MMM', { locale: es });
+    return format(date, 'dd MMM', { locale: enUS });
   };
 
   const truncateText = (text, maxLength = 100) => {
@@ -101,7 +101,7 @@ const ContentCard = ({
               ))}
               {hashtags.length > 2 && (
                 <span className="text-xs text-gray-500">
-                  +{hashtags.length - 2} más
+                  +{hashtags.length - 2} more
                 </span>
               )}
             </div>
@@ -139,7 +139,7 @@ const ContentCard = ({
               </span>
               {publishedDate && (
                 <span className="text-sm text-green-600">
-                  Publicado: {formatTime(publishedDate)}
+                  Published: {formatTime(publishedDate)}
                 </span>
               )}
             </div>
@@ -164,14 +164,14 @@ const ContentCard = ({
           {summary && (
             <div className="mt-3 p-3 bg-gray-50 rounded-md">
               <p className="text-sm text-gray-600">
-                <strong>Resumen:</strong> {summary}
+                <strong>Summary:</strong> {summary}
               </p>
             </div>
           )}
           
           {keywords && (
             <div className="mt-3">
-              <p className="text-sm text-gray-500 mb-1">Palabras clave:</p>
+              <p className="text-sm text-gray-500 mb-1">Keywords:</p>
               <div className="flex flex-wrap gap-1">
                 {keywords.split(',').map((keyword, index) => (
                   <span 
@@ -209,7 +209,7 @@ const ContentCard = ({
               onClick={() => setIsExpanded(!isExpanded)}
               className="text-sm text-blue-600 hover:text-blue-800 font-medium"
             >
-              {isExpanded ? 'Ver menos' : 'Ver más'}
+              {isExpanded ? 'Show less' : 'Show more'}
             </button>
           </div>
           
@@ -219,24 +219,24 @@ const ContentCard = ({
               onChange={(e) => onStatusChange && onStatusChange(id, e.target.value)}
               className="text-sm border border-gray-300 rounded px-2 py-1"
             >
-              <option value="draft">Borrador</option>
-              <option value="scheduled">Programado</option>
-              <option value="published">Publicado</option>
-              <option value="cancelled">Cancelado</option>
+              <option value="draft">Draft</option>
+              <option value="scheduled">Scheduled</option>
+              <option value="published">Published</option>
+              <option value="cancelled">Cancelled</option>
             </select>
             
             <button
               onClick={() => onEdit && onEdit(content)}
               className="text-sm text-blue-600 hover:text-blue-800 font-medium"
             >
-              Editar
+              Edit
             </button>
             
             <button
               onClick={() => onDelete && onDelete(id)}
               className="text-sm text-red-600 hover:text-red-800 font-medium"
             >
-              Eliminar
+              Delete
             </button>
           </div>
         </div>

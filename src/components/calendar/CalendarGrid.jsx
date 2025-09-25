@@ -12,7 +12,7 @@ import {
   subMonths,
   isToday
 } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { enUS } from 'date-fns/locale';
 import ContentCard from './ContentCard';
 
 const CalendarGrid = ({ 
@@ -26,15 +26,15 @@ const CalendarGrid = ({
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [viewMode, setViewMode] = useState('month'); // 'month' or 'week'
 
-  // Calcular días del mes actual
+  // Calculate days of current month
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
-  const startDate = startOfWeek(monthStart, { weekStartsOn: 1 }); // Lunes
+  const startDate = startOfWeek(monthStart, { weekStartsOn: 1 }); // Monday
   const endDate = endOfWeek(monthEnd, { weekStartsOn: 1 });
 
   const days = eachDayOfInterval({ start: startDate, end: endDate });
 
-  // Agrupar contenido por fecha
+  // Group content by date
   const contentByDate = useMemo(() => {
     const grouped = {};
     content.forEach(item => {
@@ -48,12 +48,12 @@ const CalendarGrid = ({
     return grouped;
   }, [content]);
 
-  // Obtener pilares por ID
+  // Get pillars by ID
   const getPillarById = (pillarId) => {
     return pillars.find(pillar => pillar.id === pillarId);
   };
 
-  // Navegación del calendario
+  // Calendar navigation
   const goToPreviousMonth = () => {
     setCurrentMonth(subMonths(currentMonth, 1));
   };
@@ -66,13 +66,13 @@ const CalendarGrid = ({
     setCurrentMonth(new Date());
   };
 
-  // Obtener contenido para una fecha específica
+  // Get content for a specific date
   const getContentForDate = (date) => {
     const dateKey = format(date, 'yyyy-MM-dd');
     return contentByDate[dateKey] || [];
   };
 
-  // Renderizar día del calendario
+  // Render calendar day
   const renderDay = (day) => {
     const dayContent = getContentForDate(day);
     const isCurrentMonth = isSameMonth(day, currentMonth);
@@ -91,7 +91,7 @@ const CalendarGrid = ({
         `}
         onClick={() => onDateClick && onDateClick(day)}
       >
-        {/* Número del día */}
+        {/* Day number */}
         <div className="flex items-center justify-between mb-2">
           <span className={`
             text-sm font-medium
@@ -101,7 +101,7 @@ const CalendarGrid = ({
             {format(day, 'd')}
           </span>
           
-          {/* Indicador de contenido */}
+          {/* Content indicator */}
           {dayContent.length > 0 && (
             <div className="flex space-x-1">
               {dayContent.slice(0, 3).map((item, index) => {
@@ -111,7 +111,7 @@ const CalendarGrid = ({
                     key={index}
                     className="w-2 h-2 rounded-full"
                     style={{ backgroundColor: pillar?.color || '#6B7280' }}
-                    title={pillar?.name || 'Sin pilar'}
+                    title={pillar?.name || 'No pillar'}
                   />
                 );
               })}
@@ -124,7 +124,7 @@ const CalendarGrid = ({
           )}
         </div>
 
-        {/* Contenido del día */}
+        {/* Day content */}
         <div className="space-y-1">
           {dayContent.slice(0, 2).map((item) => (
             <ContentCard
@@ -137,7 +137,7 @@ const CalendarGrid = ({
           ))}
           {dayContent.length > 2 && (
             <div className="text-xs text-gray-500 text-center">
-              +{dayContent.length - 2} más
+              +{dayContent.length - 2} more
             </div>
           )}
         </div>
@@ -145,20 +145,20 @@ const CalendarGrid = ({
     );
   };
 
-  // Renderizar vista de mes
+  // Render month view
   const renderMonthView = () => (
     <div className="bg-white rounded-lg shadow">
-      {/* Header del calendario */}
+      {/* Calendar header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200">
         <div className="flex items-center space-x-4">
           <h2 className="text-xl font-semibold text-gray-900">
-            {format(currentMonth, 'MMMM yyyy', { locale: es })}
+            {format(currentMonth, 'MMMM yyyy', { locale: enUS })}
           </h2>
           <button
             onClick={goToToday}
             className="px-3 py-1 text-sm text-blue-600 hover:text-blue-800 font-medium"
           >
-            Hoy
+            Today
           </button>
         </div>
         
@@ -178,23 +178,23 @@ const CalendarGrid = ({
         </div>
       </div>
 
-      {/* Días de la semana */}
+      {/* Days of the week */}
       <div className="grid grid-cols-7 border-b border-gray-200">
-        {['L', 'M', 'X', 'J', 'V', 'S', 'D'].map((day, index) => (
+        {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, index) => (
           <div key={index} className="p-3 text-center text-sm font-medium text-gray-500 bg-gray-50">
             {day}
           </div>
         ))}
       </div>
 
-      {/* Grid de días */}
+      {/* Days grid */}
       <div className="grid grid-cols-7">
         {days.map(renderDay)}
       </div>
     </div>
   );
 
-  // Renderizar vista de semana
+  // Render week view
   const renderWeekView = () => {
     const weekStart = startOfWeek(selectedDate || new Date(), { weekStartsOn: 1 });
     const weekDays = eachDayOfInterval({ 
@@ -204,10 +204,10 @@ const CalendarGrid = ({
 
     return (
       <div className="bg-white rounded-lg shadow">
-        {/* Header de la semana */}
+        {/* Week header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">
-            {format(weekStart, 'dd MMM', { locale: es })} - {format(weekDays[6], 'dd MMM yyyy', { locale: es })}
+            {format(weekStart, 'dd MMM', { locale: enUS })} - {format(weekDays[6], 'dd MMM yyyy', { locale: enUS })}
           </h2>
           <div className="flex items-center space-x-2">
             <button
@@ -225,7 +225,7 @@ const CalendarGrid = ({
           </div>
         </div>
 
-        {/* Grid de la semana */}
+        {/* Week grid */}
         <div className="grid grid-cols-7">
           {weekDays.map(renderDay)}
         </div>
@@ -235,7 +235,7 @@ const CalendarGrid = ({
 
   return (
     <div className="space-y-4">
-      {/* Controles de vista */}
+      {/* View controls */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <button
@@ -246,7 +246,7 @@ const CalendarGrid = ({
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            Mes
+            Month
           </button>
           <button
             onClick={() => setViewMode('week')}
@@ -256,22 +256,22 @@ const CalendarGrid = ({
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            Semana
+            Week
           </button>
         </div>
 
-        {/* Botón de generar contenido */}
+        {/* Generate content button */}
         {onGenerateContent && (
           <button
             onClick={onGenerateContent}
             className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 transition-colors"
           >
-            Generar Contenido
+            Generate Content
           </button>
         )}
       </div>
 
-      {/* Calendario */}
+      {/* Calendar */}
       {viewMode === 'month' ? renderMonthView() : renderWeekView()}
     </div>
   );
