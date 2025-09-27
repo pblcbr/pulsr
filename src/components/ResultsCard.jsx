@@ -21,7 +21,7 @@ function ResultsCard({ summary }) {
     try {
       const { error } = await supabase
         .from("profiles")
-        .update({ writing_interests: writingInterests }) // 👈 Ensure `profiles` table has this column TEXT
+        .update({ interest_text: writingInterests }) // 👈 Using existing `interest_text` column
         .eq("user_id", user.id);
 
       if (error) throw error;

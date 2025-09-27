@@ -24,11 +24,15 @@ const UserProfile = () => {
   const [newPasswordInput, setNewPasswordInput] = useState('');
   const [confirmPasswordInput, setConfirmPasswordInput] = useState('');
 
+  const [isEditingInterests, setIsEditingInterests] = useState(false);
+  const [interestsInput, setInterestsInput] = useState('');
+
   // Saving states and messaging
   const [savingNames, setSavingNames] = useState(false);
   const [savingEmail, setSavingEmail] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
+  const [savingInterests, setSavingInterests] = useState(false);
+
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
@@ -72,7 +76,7 @@ const UserProfile = () => {
     setFirstNameInput(profile?.firstName || '');
     setLastNameInput(profile?.lastName || '');
     setIsEditingNames(true);
-    setSuccessMessage('');
+
     setErrorMessage('');
   };
 
@@ -84,7 +88,7 @@ const UserProfile = () => {
 
   const saveNames = async () => {
     setSavingNames(true);
-    setSuccessMessage('');
+
     setErrorMessage('');
     try {
       if (!user?.id) throw new Error('No authenticated user.');
@@ -103,7 +107,7 @@ const UserProfile = () => {
         throw error;
       }
 
-      setSuccessMessage('Name updated successfully.');
+  
       setIsEditingNames(false);
       await loadProfile();
     } catch (err) {
@@ -118,7 +122,7 @@ const UserProfile = () => {
   const startEditEmail = () => {
     setEmailInput(user?.email || '');
     setIsEditingEmail(true);
-    setSuccessMessage('');
+
     setErrorMessage('');
   };
 
@@ -129,7 +133,7 @@ const UserProfile = () => {
 
   const saveEmail = async () => {
     setSavingEmail(true);
-    setSuccessMessage('');
+
     setErrorMessage('');
     try {
       if (!emailInput) throw new Error('Email cannot be empty.');
@@ -142,7 +146,7 @@ const UserProfile = () => {
 
       if (error) throw error;
 
-      setSuccessMessage('Email update requested. Please check your inbox to confirm the change.');
+
       setIsEditingEmail(false);
       // AuthContext listener should update user automatically on USER_UPDATED event
     } catch (err) {
@@ -158,7 +162,7 @@ const UserProfile = () => {
     setIsEditingPassword(true);
     setNewPasswordInput('');
     setConfirmPasswordInput('');
-    setSuccessMessage('');
+
     setErrorMessage('');
   };
 
@@ -170,7 +174,7 @@ const UserProfile = () => {
 
   const savePassword = async () => {
     setSavingPassword(true);
-    setSuccessMessage('');
+
     setErrorMessage('');
     try {
       if (newPasswordInput.length < 6) {
@@ -184,7 +188,7 @@ const UserProfile = () => {
 
       if (error) throw error;
 
-      setSuccessMessage('Password updated successfully.');
+
       cancelEditPassword();
     } catch (err) {
       console.error('Error updating password:', err);
@@ -194,13 +198,71 @@ const UserProfile = () => {
     }
   };
 
+  // Handlers - Interests
+  const startEditInterests = () => {
+    setInterestsInput(profile?.interest_text || '');
+    setIsEditingInterests(true);
+
+    setErrorMessage('');
+  };
+
+  const cancelEditInterests = () => {
+    setIsEditingInterests(false);
+    setInterestsInput('');
+  };
+
+  const saveInterests = async () => {
+    setSavingInterests(true);
+
+    setErrorMessage('');
+    try {
+      if (!user?.id) throw new Error('No authenticated user.');
+      const nowIso = new Date().toISOString();
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          interest_text: interestsInput,
+          updated_at: nowIso
+        })
+        .eq('user_id', user.id);
+
+      if (error) {
+        throw error;
+      }
+
+ 
+      setIsEditingInterests(false);
+      await loadProfile();
+    } catch (err) {
+      console.error('Error updating interests:', err);
+      setErrorMessage(err?.message || 'Failed to update interests.');
+    } finally {
+      setSavingInterests(false);
+    }
+  };
+
   const renderContent = () => {
     if (loading) {
       return (
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading profile...</p>
+        <div className="flex h-screen">
+          {/* Sidebar */}
+          <Sidebar />
+          
+          {/* Main Content Area */}
+          <div className="flex-1 flex flex-col">
+            {/* Header */}
+            <Header />
+            
+            {/* Main Content */}
+            <main className="flex-1 overflow-y-auto">
+              <div className="flex items-center justify-center h-64">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                  <p className="text-gray-600">Loading profile...</p>
+                </div>
+              </div>
+            </main>
           </div>
         </div>
       );
@@ -208,31 +270,45 @@ const UserProfile = () => {
 
     if (!profile || !personalityAnalysis) {
       return (
-        <div className="text-center py-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            Profile not found
-          </h2>
-          <p className="text-gray-600 mb-4">
-            We couldn't find a profile for this user. This may happen if:
-          </p>
-          <ul className="text-gray-600 text-left max-w-md mx-auto mb-6">
-            <li>• You haven't completed onboarding</li>
-            <li>• There's an issue with the database</li>
-            <li>• Your session has expired</li>
-          </ul>
-          <div className="space-x-4">
-            <button
-              onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              Reload Page
-            </button>
-            <button
-              onClick={() => window.location.href = '/onboarding'}
-              className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
-            >
-              Go to Onboarding
-            </button>
+        <div className="flex h-screen">
+          {/* Sidebar */}
+          <Sidebar />
+          
+          {/* Main Content Area */}
+          <div className="flex-1 flex flex-col">
+            {/* Header */}
+            <Header />
+            
+            {/* Main Content */}
+            <main className="flex-1 overflow-y-auto">
+              <div className="text-center py-8">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                  Profile not found
+                </h2>
+                <p className="text-gray-600 mb-4">
+                  We couldn't find a profile for this user. This may happen if:
+                </p>
+                <ul className="text-gray-600 text-left max-w-md mx-auto mb-6">
+                  <li>• You haven't completed onboarding</li>
+                  <li>• There's an issue with the database</li>
+                  <li>• Your session has expired</li>
+                </ul>
+                <div className="space-x-4">
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  >
+                    Reload Page
+                  </button>
+                  <button
+                    onClick={() => window.location.href = '/onboarding'}
+                    className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+                  >
+                    Go to Onboarding
+                  </button>
+                </div>
+              </div>
+            </main>
           </div>
         </div>
       );
@@ -241,11 +317,8 @@ const UserProfile = () => {
     return (
       <div className="w-full p-10">
         {/* Global messages */}
-        {successMessage && (
-          <div className="mb-4 p-3 rounded bg-green-50 border border-green-200 text-green-700">
-            {successMessage}
-          </div>
-        )}
+
+      
         {errorMessage && (
           <div className="mb-4 p-3 rounded bg-red-50 border border-red-200 text-red-700">
             {errorMessage}
@@ -253,12 +326,12 @@ const UserProfile = () => {
         )}
 
         {/* Header section within main content */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <div className="mb-8 flex flex-col items-start">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2 text-left">
             My Profile
           </h1>
-          <p className="text-gray-600">
-            Your personality and content preference profile
+          <p className="text-gray-600 text-left">
+            This is your personality and content preference profile. You can edit your name, email, and password here.
           </p>
         </div>
 
@@ -271,7 +344,7 @@ const UserProfile = () => {
             {!isEditingNames ? (
               <button
                 onClick={startEditNames}
-                className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                className="px-3 py-1 text-sm bg-orange-600 text-white rounded hover:bg-orange-700"
               >
                 Edit
               </button>
@@ -279,7 +352,7 @@ const UserProfile = () => {
           </div>
 
           {!isEditingNames ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
                 <p className="text-sm text-gray-600 mb-1">First Name</p>
                 <p className="font-medium text-gray-900">{profile?.firstName || '—'}</p>
@@ -289,14 +362,60 @@ const UserProfile = () => {
                 <p className="font-medium text-gray-900">{profile?.lastName || '—'}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">Email</p>
+                <p className="text-sm text-gray-600 mb-1">Email (cannot be changed)</p>
                 <p className="font-medium text-gray-900">{user?.email}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">Personality Type</p>
-                <p className="font-medium text-gray-900">
-                  {personalityAnalysis.personalityType}
-                </p>
+                {!isEditingPassword ? (
+                  <button
+                    onClick={startEditPassword}
+                    className="px-3 py-1 text-sm text-orange-700 cursor-pointer"
+                  >
+                    Change Password
+                  </button>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm text-gray-700 mb-1">New Password</label>
+                        <input
+                          type="password"
+                          className="w-full border border-gray-300 rounded px-3 py-2"
+                          value={newPasswordInput}
+                          onChange={(e) => setNewPasswordInput(e.target.value)}
+                          placeholder="Enter new password"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Must be at least 6 characters</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm text-gray-700 mb-1">Confirm New Password</label>
+                        <input
+                          type="password"
+                          className="w-full border border-gray-300 rounded px-3 py-2"
+                          value={confirmPasswordInput}
+                          onChange={(e) => setConfirmPasswordInput(e.target.value)}
+                          placeholder="Confirm new password"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={savePassword}
+                        disabled={savingPassword}
+                        className="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700 disabled:opacity-50"
+                      >
+                        {savingPassword ? 'Saving...' : 'Save Password'}
+                      </button>
+                      <button
+                        onClick={cancelEditPassword}
+                        disabled={savingPassword}
+                        className="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 disabled:opacity-50"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           ) : (
@@ -327,7 +446,7 @@ const UserProfile = () => {
                 <button
                   onClick={saveNames}
                   disabled={savingNames}
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                  className="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700 disabled:opacity-50"
                 >
                   {savingNames ? 'Saving...' : 'Save'}
                 </button>
@@ -343,138 +462,17 @@ const UserProfile = () => {
           )}
         </div>
 
-        {/* Account Settings - Email */}
-        <div className="bg-white p-6 rounded-lg shadow mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">
-              Account Email
-            </h2>
-            {!isEditingEmail ? (
-              <button
-                onClick={startEditEmail}
-                className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
-              >
-                Change Email
-              </button>
-            ) : null}
-          </div>
-
-          {!isEditingEmail ? (
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Current Email</p>
-              <p className="font-medium text-gray-900">{user?.email}</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm text-gray-700 mb-1">New Email</label>
-                <input
-                  type="email"
-                  className="w-full border border-gray-300 rounded px-3 py-2"
-                  value={emailInput}
-                  onChange={(e) => setEmailInput(e.target.value)}
-                  placeholder="Enter new email"
-                />
-              </div>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={saveEmail}
-                  disabled={savingEmail}
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-                >
-                  {savingEmail ? 'Saving...' : 'Save Email'}
-                </button>
-                <button
-                  onClick={cancelEditEmail}
-                  disabled={savingEmail}
-                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 disabled:opacity-50"
-                >
-                  Cancel
-                </button>
-              </div>
-              <p className="text-xs text-gray-500">
-                Changing your email may require confirmation. Please check your inbox after saving.
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Account Settings - Password */}
-        <div className="bg-white p-6 rounded-lg shadow mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">
-              Password
-            </h2>
-            {!isEditingPassword ? (
-              <button
-                onClick={startEditPassword}
-                className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
-              >
-                Change Password
-              </button>
-            ) : null}
-          </div>
-
-          {!isEditingPassword ? (
-            <div>
-              <p className="text-sm text-gray-600">
-                For security reasons, your current password is not displayed.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm text-gray-700 mb-1">New Password</label>
-                  <input
-                    type="password"
-                    className="w-full border border-gray-300 rounded px-3 py-2"
-                    value={newPasswordInput}
-                    onChange={(e) => setNewPasswordInput(e.target.value)}
-                    placeholder="Enter new password"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Must be at least 6 characters</p>
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-700 mb-1">Confirm New Password</label>
-                  <input
-                    type="password"
-                    className="w-full border border-gray-300 rounded px-3 py-2"
-                    value={confirmPasswordInput}
-                    onChange={(e) => setConfirmPasswordInput(e.target.value)}
-                    placeholder="Confirm new password"
-                  />
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={savePassword}
-                  disabled={savingPassword}
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-                >
-                  {savingPassword ? 'Saving...' : 'Save Password'}
-                </button>
-                <button
-                  onClick={cancelEditPassword}
-                  disabled={savingPassword}
-                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 disabled:opacity-50"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+         
 
         {/* Personality Analysis */}
         <div className="bg-white p-6 rounded-lg shadow mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4 text-left">
             Personality Analysis
           </h2>
 
           {/* Personality Dimensions */}
           <div className="mb-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-3">
+            <h3 className="text-lg font-medium text-orange-600 mb-3">
               Personality Dimensions
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -488,7 +486,7 @@ const UserProfile = () => {
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
-                      className="bg-blue-600 h-2 rounded-full"
+                      className="bg-orange-600 h-2 rounded-full"
                       style={{ width: `${(score / 20) * 100}%` }}
                     ></div>
                   </div>
@@ -500,7 +498,7 @@ const UserProfile = () => {
           {/* Analysis Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-3">
+              <h3 className="text-lg font-medium text-orange-400 mb-3">
                 Key Characteristics
               </h3>
               <div className="space-y-2">
@@ -520,7 +518,7 @@ const UserProfile = () => {
             </div>
 
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-3">
+              <h3 className="text-lg font-medium text-orange-400 mb-3">
                 Content Preferences
               </h3>
               <div className="space-y-2">
@@ -539,25 +537,70 @@ const UserProfile = () => {
               </div>
             </div>
           </div>
+
+          {/* Interests Section - Full Width */}
+          <div className="mt-6 flex flex-col items-center justify-center">
+            <h3 className="text-lg font-medium text-orange-400 mb-3">
+              Interests
+            </h3>
+            {!isEditingInterests ? (
+              <div className="text-center max-w-2xl">
+                <p className="text-gray-700 leading-relaxed mb-4">
+                  {personalityAnalysis.interest_text || profile?.interest_text || 'No interests specified'}
+                </p>
+                <button
+                  onClick={startEditInterests}
+                  className="px-3 py-1 text-sm bg-orange-600 text-white rounded hover:bg-orange-700"
+                >
+                  Edit Interests
+                </button>
+              </div>
+            ) : (
+              <div className="text-center max-w-2xl w-full">
+                <textarea
+                  className="w-full border border-gray-300 rounded px-3 py-2 mb-3"
+                  rows="3"
+                  value={interestsInput}
+                  onChange={(e) => setInterestsInput(e.target.value)}
+                  placeholder="Enter your interests separated by commas"
+                />
+                <div className="flex justify-center gap-3">
+                  <button
+                    onClick={saveInterests}
+                    disabled={savingInterests}
+                    className="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700 disabled:opacity-50"
+                  >
+                    {savingInterests ? 'Saving...' : 'Save'}
+                  </button>
+                  <button
+                    onClick={cancelEditInterests}
+                    disabled={savingInterests}
+                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  
+                </div>
+                <p className="text-xs text-gray-600 mt-3">Once saved, the content of your posts will be generated based on your new interests.</p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Content Pillars */}
         <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4 text-left">
             Content Pillars
           </h2>
-          <p className="text-gray-600 mb-4">
-            These are the main topics that will be generated for your content based on your personality:
+          <p className="text-gray-600 mb-4 text-left">
+            These are the main topics that will be generated for your content based on your personality.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {personalityAnalysis.contentPillars?.map((pillar, index) => (
-              <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded">
-                <div
-                  className="w-4 h-4 rounded-full"
-                  style={{ backgroundColor: pillar.color }}
-                />
+              <div key={index} className="flex items-center space-x-3 p-3 bg-orange-50 rounded text-left">
+                <div/>
                 <div>
-                  <p className="font-medium text-gray-900">{pillar.name}</p>
+                  <p className="font-medium text-gray-900 text-left">{pillar.name}</p>
                   <p className="text-sm text-gray-600">{pillar.description}</p>
                 </div>
               </div>
@@ -569,11 +612,17 @@ const UserProfile = () => {
   };
 
   return (
-    <div className="w-full">
-      <Header />
-      <div className="flex">
-        <Sidebar />
-        <main className="flex-1">
+    <div className="flex h-screen">
+      {/* Sidebar */}
+      <Sidebar />
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <Header />
+
+        {/* Main Content */}
+        <main className="flex-1 overflow-y-auto">
           {renderContent()}
         </main>
       </div>

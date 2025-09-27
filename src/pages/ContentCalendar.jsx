@@ -70,16 +70,17 @@ const ContentCalendar = () => {
 
   if (!profile) {
     return (
-      <div className="w-full">
-        {/* Header */}
-        <Header />
+      <div className="flex h-screen">
+        {/* Sidebar */}
+        <Sidebar />
         
-        <div className="flex">
-          {/* Sidebar */}
-          <Sidebar />
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col">
+          {/* Header */}
+          <Header />
           
           {/* Main Content */}
-          <main className="flex-1">
+          <main className="flex-1 overflow-y-auto">
             <div className="flex items-center justify-center h-64">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
@@ -93,16 +94,17 @@ const ContentCalendar = () => {
   }
 
   return (
-    <div className="w-full">
-      {/* Header */}
-      <Header />
+    <div className="flex h-screen">
+      {/* Sidebar */}
+      <Sidebar />
 
-      <div className="flex">
-        {/* Sidebar */}
-        <Sidebar />
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <Header />
 
         {/* Main Content */}
-        <main className="flex-1">
+        <main className="flex-1 overflow-y-auto">
           <div className="p-6">
             {/* Page Header */}
             <div className="mb-8">

@@ -11,23 +11,16 @@ const Header = () => {
   return (
     <header className="bg-white shadow-sm border-b border-gray-200">
       <div className="w-full px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <Link to="/dashboard">
-          <div className="flex items-center">
-            <h1 className="text-2xl font-bold text-blue-600">Pulsr</h1>
-            </div>
-            </Link>
+        <div className="flex justify-between items-center h-16 relative">
           
           {/* Profile */}
           {user && (
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-4 justify-end absolute right-0">
               <div className="hidden sm:block">
-                <p className="text-sm font-medium text-gray-900">{user.email}</p>
               </div>
               <button
                 onClick={handleSignOut}
-                className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                className="px-4 py-2 bg-red-400 text-white text-sm font-medium rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
               >
                 Sign Out
               </button>
