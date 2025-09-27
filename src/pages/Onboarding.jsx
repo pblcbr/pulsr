@@ -19,7 +19,7 @@ function Onboarding() {
   const [questions, setQuestions] = useState(null);    // stores the formatted questions
   const [errorMessage, setErrorMessage] = useState(null); // stores any fetch error
 
-  const { user } = useAuth();
+  const { user, markOnboardingComplete } = useAuth();
   const navigate = useNavigate();
 
   async function handleOnboardingComplete(results) {
@@ -27,35 +27,51 @@ function Onboarding() {
     try {
       console.log("Received results from questionnaire:", results);
 
-      const { data, error } = await supabase.from("profiles").insert([
-        {
-          user_id: user.id,
-          practical: results.totals.practical,
-          creative: results.totals.creative,
-          analytical: results.totals.analytical,
-          social: results.totals.social,
-          entrepreneurial: results.totals.entrepreneurial,
-          organized: results.totals.organized,
-          business_model: results.business_model,
-          audience: results.audience,
-          tech_comfort: results.tech_comfort,
-          structure_flex: results.structured_flexible,
-          solo_team: results.independent_team,
-          interest_text: results.topInterests.join(", "),
-          positioning_statement: results.positioning_statement || '',
-        },
-      ]);
+      const payload = {
+        user_id: user.id,
+        practical: results.totals?.practical ?? 0,
+        analytical: results.totals?.analytical ?? 0,
+        creative: results.totals?.creative ?? 0,
+        social: results.totals?.social ?? 0,
+        entrepreneurial: results.totals?.entrepreneurial ?? 0,
+        organized: results.totals?.organized ?? 0,
+
+        business_model: results.business_model ?? '',
+        audience: results.audience ?? '',
+        positioning_statement: results.positioning_statement ?? '',
+
+        tech_comfort: results.tech_comfort ?? null,
+        structure_flex: results.structure_flex ?? results.structured_flexible ?? null,
+        solo_team: results.solo_team ?? results.independent_team ?? null,
+
+        interest_text: results.interest_text ??
+          (Array.isArray(results.topInterests) ? results.topInterests.join(", ") : ''),
+
+        updated_at: new Date().toISOString(),
+      };
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .upsert(payload, { onConflict: 'user_id' })
+        .select()
+        .single();
 
       if (error) {
         console.error("Error saving onboarding results:", error);
-        alert("Error al guardar los resultados. Por favor, inténtalo de nuevo.");
+        alert("Error saving your results. Please try again.");
       } else {
         console.log("Saved onboarding results:", data);
-        // mark as completed in user metadata
-        await supabase.auth.updateUser({
-          data: { has_completed_onboarding: true },
-        });
-        // alert("¡Onboarding completado! Tu perfil ha sido actualizado.");
+
+        try {
+          await supabase.auth.updateUser({
+            data: { has_completed_onboarding: true },
+          });
+          if (typeof markOnboardingComplete === 'function') {
+            await markOnboardingComplete();
+          }
+        } catch (metaErr) {
+          console.warn("Unable to update auth metadata:", metaErr);
+        }
       }
     } catch (err) {
       console.error("Unexpected error saving onboarding results:", err);

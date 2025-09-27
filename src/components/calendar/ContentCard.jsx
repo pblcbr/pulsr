@@ -58,9 +58,12 @@ const ContentCard = ({
   };
 
   const truncateText = (text, maxLength = 100) => {
+    if (!text) return '';
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength) + '...';
   };
+
+  const safeBodyHtml = (body_md ?? '').replace(/\n/g, '<br>');
 
   const renderContent = () => {
     if (isCompact) {
@@ -83,15 +86,15 @@ const ContentCard = ({
               />
             )}
           </div>
-          
+
           <h4 className="text-sm font-medium text-gray-900 mb-1 line-clamp-1">
             {title}
           </h4>
-          
+
           <p className="text-xs text-gray-600 line-clamp-2">
             {summary || truncateText(body_md, 80)}
           </p>
-          
+
           {hashtags.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-2">
               {hashtags.slice(0, 2).map((hashtag, index) => (
@@ -132,7 +135,7 @@ const ContentCard = ({
                 </div>
               )}
             </div>
-            
+
             <div className="flex items-center space-x-2">
               <span className="text-sm text-gray-500">
                 {formatDate(scheduledDate)}
@@ -144,7 +147,7 @@ const ContentCard = ({
               )}
             </div>
           </div>
-          
+
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
             {title}
           </h3>
@@ -156,11 +159,11 @@ const ContentCard = ({
             <div 
               className="text-gray-700 whitespace-pre-wrap"
               dangerouslySetInnerHTML={{ 
-                __html: body_md.replace(/\n/g, '<br>') 
+                __html: safeBodyHtml
               }}
             />
           </div>
-          
+
           {summary && (
             <div className="mt-3 p-3 bg-gray-50 rounded-md">
               <p className="text-sm text-gray-600">
@@ -168,7 +171,7 @@ const ContentCard = ({
               </p>
             </div>
           )}
-          
+
           {keywords && (
             <div className="mt-3">
               <p className="text-sm text-gray-500 mb-1">Keywords:</p>
@@ -184,7 +187,7 @@ const ContentCard = ({
               </div>
             </div>
           )}
-          
+
           {hashtags.length > 0 && (
             <div className="mt-3">
               <p className="text-sm text-gray-500 mb-1">Hashtags:</p>

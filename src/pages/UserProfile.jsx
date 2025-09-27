@@ -88,16 +88,20 @@ const UserProfile = () => {
     setErrorMessage('');
     try {
       if (!user?.id) throw new Error('No authenticated user.');
+      const nowIso = new Date().toISOString();
+
       const { error } = await supabase
         .from('profiles')
         .update({
           firstName: firstNameInput,
           lastName: lastNameInput,
-          updated_at: new Date().toISOString()
+          updated_at: nowIso
         })
         .eq('user_id', user.id);
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
       setSuccessMessage('Name updated successfully.');
       setIsEditingNames(false);

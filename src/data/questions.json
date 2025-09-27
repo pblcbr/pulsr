@@ -143,25 +143,25 @@
     {
       "id": "q10",
       "type": "slider",
-      "key": "structured_flexible",
+      "key": "structure_flex",
       "title": "Do you prefer structure or flexibility?",
       "leftLabel": "Structure",
       "rightLabel": "Flexibility",
       "min": 1,
       "max": 5,
-      "propertyKey": "structured_flexible",
+      "propertyKey": "structure_flex",
       "required": true
     },
     {
       "id": "q11",
       "type": "slider",
-      "key": "independent_team",
+      "key": "solo_team",
       "title": "Work solo or with a team?",
       "leftLabel": "Solo",
       "rightLabel": "Team",
       "min": 1,
       "max": 5,
-      "propertyKey": "independent_team",
+      "propertyKey": "solo_team",
       "required": true
     },
     {
@@ -229,4 +229,3 @@
       "required": true
     }
   ]
-  

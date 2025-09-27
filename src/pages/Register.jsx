@@ -114,7 +114,7 @@ const Register = () => {
                       onChange={(e) => setFirstName(e.target.value)}
                       required
                       className="w-full px-5 py-4 bg-white border-2 border-gray-200 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300 text-gray-800 font-medium"
-                      placeholder="Enter your email"
+                      placeholder="Enter your first name"
                     />
                   </div>
                 </div>
@@ -131,7 +131,7 @@ const Register = () => {
                       onChange={(e) => setLastName(e.target.value)}
                       required
                       className="w-full px-5 py-4 bg-white border-2 border-gray-200 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300 text-gray-800 font-medium"
-                      placeholder="Enter your email"
+                      placeholder="Enter your last name"
                     />
                   </div>
                 </div>

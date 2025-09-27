@@ -58,7 +58,7 @@ export const AuthProvider = ({ children }) => {
               user_id: data.user.id,
               firstName: profile.firstName || '',
               lastName: profile.lastName || '',
-              sector: '',
+              business_model: '',
               audience: '',
               positioning_statement: ''
             })
@@ -101,12 +101,47 @@ export const AuthProvider = ({ children }) => {
     return { error }
   }
 
+  const markOnboardingComplete = async () => {
+    try {
+      const { data: userData } = await supabase.auth.getUser()
+      const currentUser = userData?.user
+      if (!currentUser) {
+        return { data: null, error: new Error('Not authenticated') }
+      }
+
+      const updatedMeta = {
+        ...(currentUser.user_metadata || {}),
+        has_completed_onboarding: true,
+      }
+
+      const { data, error } = await supabase.auth.updateUser({
+        data: updatedMeta,
+      })
+
+      if (error) {
+        console.error('Error updating user metadata:', error)
+        return { data, error }
+      }
+
+      // Optimistically update local state
+      setUser({
+        ...currentUser,
+        user_metadata: updatedMeta,
+      })
+
+      return { data, error: null }
+    } catch (err) {
+      console.error('markOnboardingComplete exception:', err)
+      return { data: null, error: err }
+    }
+  }
   const value = {
     user,
     loading,
     signUp,
     signIn,
     signOut,
+    markOnboardingComplete,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

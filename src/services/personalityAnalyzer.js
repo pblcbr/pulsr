@@ -23,6 +23,10 @@ export const analyzePersonality = (profile) => {
     positioning_statement
   } = profile;
 
+  // Backward/forward compatible slider fields
+  const structureFlex = structure_flex ?? profile.structured_flexible ?? null;
+  const soloTeam = solo_team ?? profile.independent_team ?? null;
+
   // Calculate totals to determine dominant type
   const totals = {
     practical,
@@ -40,15 +44,19 @@ export const analyzePersonality = (profile) => {
 
   // Determine main personality type
   const personalityType = getPersonalityType(primaryType, secondaryType, primaryScore, secondaryScore);
-  
+
+  // Resolve business model/audience with potential alternative keys
+  const businessModel = business_model ?? profile.businessModel ?? profile.businessmodel ?? '';
+  const audienceVal = audience ?? profile.target_audience ?? profile.targetAudience ?? profile.audience ?? '';
+
   // Generate content pillars based on personality
-  const contentPillars = generateContentPillars(personalityType, business_model, audience);
-  
+  const contentPillars = generateContentPillars(personalityType, businessModel, audienceVal);
+
   // Determine content tone
-  const tone = getContentTone(personalityType, tech_comfort, structure_flex);
-  
+  const tone = getContentTone(personalityType, tech_comfort, structureFlex);
+
   // Generate interest topics
-  const interests = generateInterests(personalityType, business_model, audience);
+  const interests = generateInterests(personalityType, businessModel, audienceVal);
 
   return {
     personalityType,
@@ -59,8 +67,8 @@ export const analyzePersonality = (profile) => {
     contentPillars,
     tone,
     interests,
-    contentStrategy: getContentStrategy(personalityType, business_model, audience),
-    postingFrequency: getPostingFrequency(personalityType, structure_flex),
+    contentStrategy: getContentStrategy(personalityType, businessModel, audienceVal),
+    postingFrequency: getPostingFrequency(personalityType, structureFlex),
     positioning_statement
   };
 };
