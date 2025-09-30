@@ -5,7 +5,6 @@ import Header from '../components/Header';
 
 const Success = () => {
   const location = useLocation();
-  const [sessionId, setSessionId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('Verifying your payment...');
 
@@ -13,7 +12,6 @@ const Success = () => {
     const query = new URLSearchParams(location.search);
     const id = query.get('session_id');
     if (id) {
-      setSessionId(id);
       // In a real application, you would send this sessionId to your backend
       // to verify the payment and update the user's subscription status.
       // For this example, we'll just simulate a successful verification.

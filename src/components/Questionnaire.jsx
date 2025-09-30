@@ -1,8 +1,6 @@
 // src/components/Questionnaire.jsx
 import React, { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence, motion } from "framer-motion";
 import clsx from "clsx";
 import ProgressBar from "./ProgressBar";
@@ -10,7 +8,7 @@ import computeResults from "../utils/computeResults";
 import { useAuth } from "../contexts/AuthContext"; 
 import ResultsCard from "./ResultsCard";
 
-const schema = z.record(z.any());
+const MotionDiv = motion.div;
 
 function Questionnaire({ questions, onComplete }) {
   const { user } = useAuth() || {}; // expects { user } 
@@ -18,34 +16,6 @@ function Questionnaire({ questions, onComplete }) {
   const current = questions[step];
   const total = questions.length;
   const [summary, setSummary] = useState(null);
-
-  // ---- AUTH  ----
-  if (user === undefined) {
-    // context not ready OR you don't expose a loading flag
-    return (
-      <div className="rounded-xl border p-6 text-center">
-        <p>Loading…</p>
-      </div>
-    );
-  }
-  if (!user) {
-    // not signed in
-    return (
-      <div className="rounded-xl border p-6 text-center">
-        <h2 className="text-lg font-medium mb-2">Please sign in to continue</h2>
-        <p className="text-sm text-neutral-600">
-          You need an account to take the questionnaire.
-        </p>
-        <a
-          href="/login"
-          className="mt-4 inline-block rounded-xl bg-black px-4 py-2 text-white"
-        >
-          Sign in
-        </a>
-      </div>
-    );
-  }
-  // -------------------
 
   const {
     control,
@@ -80,6 +50,34 @@ function Questionnaire({ questions, onComplete }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, current]);
 
+  // ---- AUTH  ----
+  if (user === undefined) {
+    // context not ready OR you don't expose a loading flag
+    return (
+      <div className="rounded-xl border p-6 text-center">
+        <p>Loading…</p>
+      </div>
+    );
+  }
+  if (!user) {
+    // not signed in
+    return (
+      <div className="rounded-xl border p-6 text-center">
+        <h2 className="text-lg font-medium mb-2">Please sign in to continue</h2>
+        <p className="text-sm text-neutral-600">
+          You need an account to take the questionnaire.
+        </p>
+        <a
+          href="/login"
+          className="mt-4 inline-block rounded-xl bg-black px-4 py-2 text-white"
+        >
+          Sign in
+        </a>
+      </div>
+    );
+  }
+  // -------------------
+
   function goBack() {
     setStep((s) => Math.max(0, s - 1));
   }
@@ -111,7 +109,7 @@ function Questionnaire({ questions, onComplete }) {
 
   if (summary) {
     return (
-      <motion.div
+      <MotionDiv
         key="results"
         variants={variants}
         initial="initial"
@@ -120,7 +118,7 @@ function Questionnaire({ questions, onComplete }) {
         className="rounded-2xl bg-white p-6 shadow-lg"
       >
         <ResultsCard summary={summary} />
-      </motion.div>
+      </MotionDiv>
     );
   }
 
@@ -129,7 +127,7 @@ function Questionnaire({ questions, onComplete }) {
       <ProgressBar percent={percent} />
 
       <AnimatePresence mode="wait" initial={false}>
-        <motion.div
+        <MotionDiv
           key={current.id}
           variants={variants}
           initial="initial"
@@ -258,7 +256,7 @@ function Questionnaire({ questions, onComplete }) {
               </button>
             )}
           </div>
-        </motion.div>
+        </MotionDiv>
       </AnimatePresence>
 
       <div className="mt-6 text-center text-xs text-neutral-500">

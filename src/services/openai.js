@@ -119,6 +119,7 @@ const parseGeneratedContent = (generatedContent, profile, pillar, scheduledDate)
       updated_at: new Date().toISOString()
     };
   } catch (error) {
+    console.warn('Failed to parse AI response as JSON. Falling back to raw content.', error);
     // If not valid JSON, use content as is
     return {
       title: `Post about ${pillar.name}`,

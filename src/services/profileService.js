@@ -34,6 +34,13 @@ export const getCurrentUserProfile = async () => {
       audience: profile.audience ?? '',
       structure_flex: profile.structure_flex ?? null,
       solo_team: profile.solo_team ?? null,
+      content_pillars_ai: profile.content_pillars_ai ?? null,
+      content_strategy_ai: profile.content_strategy_ai ?? null,
+      ai_persona_summary: profile.ai_persona_summary ?? '',
+      ai_generated_at: profile.ai_generated_at ?? null,
+      ai_version: profile.ai_version ?? null,
+      ai_prompt_fingerprint: profile.ai_prompt_fingerprint ?? null,
+      ai_regen_required: profile.ai_regen_required ?? false,
     };
 
     return normalized;
@@ -127,7 +134,14 @@ export const saveOnboardingResults = async (onboardingResults) => {
       structure_flex: onboardingResults.structure_flex ?? onboardingResults.structured_flexible ?? null,
       solo_team: onboardingResults.solo_team ?? onboardingResults.independent_team ?? null,
       interest_text: onboardingResults.interest_text || '',
-      positioning_statement: onboardingResults.positioning_statement || ''
+      positioning_statement: onboardingResults.positioning_statement || '',
+      ai_regen_required: true,
+      ai_prompt_fingerprint: null,
+      content_pillars_ai: null,
+      content_strategy_ai: null,
+      ai_persona_summary: null,
+      ai_generated_at: null,
+      ai_version: null
     };
 
     return await updateUserProfile(profileData);

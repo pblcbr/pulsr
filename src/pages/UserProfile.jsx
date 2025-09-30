@@ -1,24 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import { getCurrentUserProfile } from '../services/profileService';
 import { analyzePersonality } from '../services/personalityAnalyzer';
 import { supabase } from '../lib/supabase';
+import { generatePersonalizedContent } from '../services/aiPersonalizationService';
+import { formatDistanceToNow } from 'date-fns';
 
 const UserProfile = () => {
   const { user } = useAuth();
   const [profile, setProfile] = useState(null);
   const [personalityAnalysis, setPersonalityAnalysis] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [aiGenerating, setAiGenerating] = useState(false);
+  const [aiStatusMessage, setAiStatusMessage] = useState('');
+  const [showAiStatus, setShowAiStatus] = useState(false);
+  const [aiError, setAiError] = useState('');
+  const autoTriggerRef = useRef(false);
 
   // Editing states
   const [isEditingNames, setIsEditingNames] = useState(false);
   const [firstNameInput, setFirstNameInput] = useState('');
   const [lastNameInput, setLastNameInput] = useState('');
-
-  const [isEditingEmail, setIsEditingEmail] = useState(false);
-  const [emailInput, setEmailInput] = useState('');
 
   const [isEditingPassword, setIsEditingPassword] = useState(false);
   const [newPasswordInput, setNewPasswordInput] = useState('');
@@ -29,23 +33,12 @@ const UserProfile = () => {
 
   // Saving states and messaging
   const [savingNames, setSavingNames] = useState(false);
-  const [savingEmail, setSavingEmail] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
   const [savingInterests, setSavingInterests] = useState(false);
 
   const [errorMessage, setErrorMessage] = useState('');
 
-  useEffect(() => {
-    loadProfile();
-  }, []);
-
-  useEffect(() => {
-    if (user?.email) {
-      setEmailInput(user.email);
-    }
-  }, [user]);
-
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     try {
       const userProfile = await getCurrentUserProfile();
       console.log('Loaded profile:', userProfile);
@@ -69,7 +62,11 @@ const UserProfile = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadProfile();
+  }, [loadProfile]);
 
   // Handlers - Names
   const startEditNames = () => {
@@ -115,45 +112,6 @@ const UserProfile = () => {
       setErrorMessage(err?.message || 'Failed to update name.');
     } finally {
       setSavingNames(false);
-    }
-  };
-
-  // Handlers - Email
-  const startEditEmail = () => {
-    setEmailInput(user?.email || '');
-    setIsEditingEmail(true);
-
-    setErrorMessage('');
-  };
-
-  const cancelEditEmail = () => {
-    setIsEditingEmail(false);
-    setEmailInput(user?.email || '');
-  };
-
-  const saveEmail = async () => {
-    setSavingEmail(true);
-
-    setErrorMessage('');
-    try {
-      if (!emailInput) throw new Error('Email cannot be empty.');
-      if (emailInput === user?.email) {
-        setIsEditingEmail(false);
-        return;
-      }
-
-      const { error } = await supabase.auth.updateUser({ email: emailInput });
-
-      if (error) throw error;
-
-
-      setIsEditingEmail(false);
-      // AuthContext listener should update user automatically on USER_UPDATED event
-    } catch (err) {
-      console.error('Error updating email:', err);
-      setErrorMessage(err?.message || 'Failed to update email.');
-    } finally {
-      setSavingEmail(false);
     }
   };
 
@@ -223,7 +181,9 @@ const UserProfile = () => {
         .from('profiles')
         .update({
           interest_text: interestsInput,
-          updated_at: nowIso
+          updated_at: nowIso,
+          ai_regen_required: true,
+          ai_prompt_fingerprint: null
         })
         .eq('user_id', user.id);
 
@@ -242,77 +202,145 @@ const UserProfile = () => {
     }
   };
 
+  const handleGeneratePersonalization = useCallback(async (forceRegenerate = false) => {
+    if (!user?.id) {
+      setAiError('You must be signed in to generate personalized content.');
+      return;
+    }
+
+    setAiGenerating(true);
+    setAiError('');
+    setShowAiStatus(false);
+    setAiStatusMessage(forceRegenerate ? 'Regenerating personalized content...' : 'Generating personalized content...');
+
+    try {
+      const result = await generatePersonalizedContent({
+        userId: user.id,
+        forceRegenerate,
+      });
+
+      if (result.status === 'up-to-date') {
+        setAiStatusMessage('Personalized content is already up to date.');
+      } else {
+        setAiStatusMessage('Personalized content updated successfully.');
+      }
+      setShowAiStatus(true);
+
+      await loadProfile();
+    } catch (err) {
+      console.error('Error generating personalized content:', err);
+      setAiError(err?.message || 'Failed to generate personalized content.');
+      setAiStatusMessage('');
+      setShowAiStatus(false);
+    } finally {
+      setAiGenerating(false);
+    }
+  }, [user?.id, loadProfile]);
+
+  useEffect(() => {
+    if (loading || !profile || !user?.id) return;
+
+    const hasAiContent = Array.isArray(profile.content_pillars_ai) && profile.content_pillars_ai.length > 0;
+    const requiresGeneration = !hasAiContent || profile.ai_regen_required;
+
+    if (requiresGeneration && !autoTriggerRef.current && !aiGenerating) {
+      autoTriggerRef.current = true;
+      handleGeneratePersonalization(profile.ai_regen_required);
+    }
+
+    if (!requiresGeneration) {
+      autoTriggerRef.current = false;
+    }
+  }, [loading, profile, user, aiGenerating, handleGeneratePersonalization]);
+
+  useEffect(() => {
+    if (!showAiStatus || !aiStatusMessage) return;
+
+    const timer = setTimeout(() => {
+      setShowAiStatus(false);
+    }, 10000);
+
+    return () => clearTimeout(timer);
+  }, [showAiStatus, aiStatusMessage]);
+
   const renderContent = () => {
     if (loading) {
       return (
-        <div className="flex h-screen">
-          {/* Sidebar */}
-          <Sidebar />
-          
-          {/* Main Content Area */}
-          <div className="flex-1 flex flex-col">
-            {/* Header */}
-            <Header />
-            
-            {/* Main Content */}
-            <main className="flex-1 overflow-y-auto">
-              <div className="flex items-center justify-center h-64">
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                  <p className="text-gray-600">Loading profile...</p>
-                </div>
-              </div>
-            </main>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading profile...</p>
           </div>
         </div>
       );
     }
 
-    if (!profile || !personalityAnalysis) {
+    if (!profile) {
       return (
-        <div className="flex h-screen">
-          {/* Sidebar */}
-          <Sidebar />
-          
-          {/* Main Content Area */}
-          <div className="flex-1 flex flex-col">
-            {/* Header */}
-            <Header />
-            
-            {/* Main Content */}
-            <main className="flex-1 overflow-y-auto">
-              <div className="text-center py-8">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                  Profile not found
-                </h2>
-                <p className="text-gray-600 mb-4">
-                  We couldn't find a profile for this user. This may happen if:
-                </p>
-                <ul className="text-gray-600 text-left max-w-md mx-auto mb-6">
-                  <li>• You haven't completed onboarding</li>
-                  <li>• There's an issue with the database</li>
-                  <li>• Your session has expired</li>
-                </ul>
-                <div className="space-x-4">
-                  <button
-                    onClick={() => window.location.reload()}
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                  >
-                    Reload Page
-                  </button>
-                  <button
-                    onClick={() => window.location.href = '/onboarding'}
-                    className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
-                  >
-                    Go to Onboarding
-                  </button>
-                </div>
-              </div>
-            </main>
+        <div className="text-center py-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            Profile not found
+          </h2>
+          <p className="text-gray-600 mb-4">
+            We couldn't find a profile for this user. This may happen if:
+          </p>
+          <ul className="text-gray-600 text-left max-w-md mx-auto mb-6">
+            <li>• You haven't completed onboarding</li>
+            <li>• There's an issue with the database</li>
+            <li>• Your session has expired</li>
+          </ul>
+          <div className="space-x-4">
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Reload Page
+            </button>
+            <button
+              onClick={() => window.location.href = '/onboarding'}
+              className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+            >
+              Go to Onboarding
+            </button>
           </div>
         </div>
       );
     }
+
+    if (!personalityAnalysis) {
+      return (
+        <div className="text-center py-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            Personality analysis unavailable
+          </h2>
+          <p className="text-gray-600 mb-4">
+            Your core profile exists, but we were unable to generate the personality insights just yet.
+          </p>
+          <p className="text-gray-600">
+            Try refreshing the page or re-running onboarding to regenerate your preferences.
+          </p>
+        </div>
+      );
+    }
+
+    const interestDisplay = profile?.interest_text?.trim()
+      ? profile.interest_text
+      : personalityAnalysis.interests?.length
+        ? personalityAnalysis.interests.join(', ')
+        : 'No interests specified';
+
+    const hasAiContent = Array.isArray(profile.content_pillars_ai) && profile.content_pillars_ai.length > 0;
+    const aiGeneratedRelative = profile.ai_generated_at
+      ? formatDistanceToNow(new Date(profile.ai_generated_at), { addSuffix: true })
+      : null;
+    const displayPillars = hasAiContent
+      ? profile.content_pillars_ai
+      : personalityAnalysis.contentPillars || [];
+    const usingFallbackPillars = !hasAiContent && displayPillars.length > 0;
+    const contentStrategy = hasAiContent ? profile.content_strategy_ai || {} : {};
+    const contentMix = Array.isArray(contentStrategy?.contentMix) ? contentStrategy.contentMix : [];
+    const callToActions = Array.isArray(contentStrategy?.callToActions) ? contentStrategy.callToActions : [];
+    const keyMetrics = Array.isArray(contentStrategy?.keyMetrics) ? contentStrategy.keyMetrics : [];
 
     return (
       <div className="w-full p-10">
@@ -322,6 +350,25 @@ const UserProfile = () => {
         {errorMessage && (
           <div className="mb-4 p-3 rounded bg-red-50 border border-red-200 text-red-700">
             {errorMessage}
+          </div>
+        )}
+
+        {aiStatusMessage && showAiStatus && (
+          <div className="mb-4 p-3 rounded bg-blue-50 border border-blue-200 text-blue-700 flex items-start justify-between gap-4">
+            <span>{aiStatusMessage}</span>
+            <button
+              onClick={() => setShowAiStatus(false)}
+              className="text-blue-700 hover:text-blue-900"
+              aria-label="Dismiss personalized content status"
+            >
+              ×
+            </button>
+          </div>
+        )}
+
+        {aiError && (
+          <div className="mb-4 p-3 rounded bg-red-50 border border-red-200 text-red-700">
+            {aiError}
           </div>
         )}
 
@@ -462,7 +509,107 @@ const UserProfile = () => {
           )}
         </div>
 
-         
+        <div className="bg-white p-6 rounded-lg shadow mb-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900">
+                AI Personalized Content Strategy
+              </h2>
+              <p className="text-gray-600">
+                Tailored pillars and publishing guidance based on your onboarding responses.
+              </p>
+            </div>
+            <div className="flex flex-col items-start md:items-end gap-2">
+              {hasAiContent && aiGeneratedRelative && (
+                <span className="text-sm text-gray-500">Updated {aiGeneratedRelative}</span>
+              )}
+              <button
+                onClick={() => handleGeneratePersonalization(true)}
+                disabled={aiGenerating}
+                className="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700 disabled:opacity-50"
+              >
+                {aiGenerating ? 'Generating...' : hasAiContent ? 'Regenerate' : 'Generate'}
+              </button>
+            </div>
+          </div>
+
+          {!hasAiContent ? (
+            <div className="mt-6 rounded border border-dashed border-orange-300 bg-orange-50 p-5 text-left">
+              <p className="text-gray-700 mb-4">
+                We haven't generated personalized pillars yet. Kick off a run to tailor your content strategy with AI.
+              </p>
+              <button
+                onClick={() => handleGeneratePersonalization(false)}
+                disabled={aiGenerating}
+                className="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700 disabled:opacity-50"
+              >
+                {aiGenerating ? 'Generating...' : 'Generate Personalized Pillars'}
+              </button>
+              <p className="mt-3 text-sm text-gray-500">
+                This uses your onboarding questionnaire, interests, and positioning statement to tailor your plan.
+              </p>
+            </div>
+          ) : (
+            <div className="mt-6 space-y-6">
+              {profile.ai_persona_summary && (
+                <div>
+                  <h3 className="text-lg font-medium text-orange-600 mb-2">Persona Summary</h3>
+                  <p className="text-gray-700 leading-relaxed">
+                    {profile.ai_persona_summary}
+                  </p>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="p-4 bg-gray-50 rounded">
+                  <p className="text-sm text-gray-600 uppercase tracking-wide mb-1">Cadence</p>
+                  <p className="text-gray-900 font-medium">
+                    {contentStrategy?.cadence || 'See pillars below'}
+                  </p>
+                </div>
+                <div className="p-4 bg-gray-50 rounded">
+                  <p className="text-sm text-gray-600 uppercase tracking-wide mb-1">Call to Actions</p>
+                  <ul className="text-sm text-gray-900 space-y-1">
+                    {callToActions.length > 0 ? (
+                      callToActions.map((cta, index) => (
+                        <li key={index}>• {cta}</li>
+                      ))
+                    ) : (
+                      <li>Encourage comments and shares.</li>
+                    )}
+                  </ul>
+                </div>
+                <div className="p-4 bg-gray-50 rounded">
+                  <p className="text-sm text-gray-600 uppercase tracking-wide mb-1">Key Metrics</p>
+                  <ul className="text-sm text-gray-900 space-y-1">
+                    {keyMetrics.length > 0 ? (
+                      keyMetrics.map((metric, index) => (
+                        <li key={index}>• {metric}</li>
+                      ))
+                    ) : (
+                      <li>Track saves and reply rates.</li>
+                    )}
+                  </ul>
+                </div>
+              </div>
+
+              {contentMix.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-medium text-orange-600 mb-3">Suggested Content Mix</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {contentMix.map((mix, index) => (
+                      <div key={index} className="p-3 bg-white border border-gray-200 rounded">
+                        <p className="font-medium text-gray-900">{mix.type}</p>
+                        <p className="text-sm text-gray-600">{mix.percentage}% of your posts</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
 
         {/* Personality Analysis */}
         <div className="bg-white p-6 rounded-lg shadow mb-6">
@@ -546,7 +693,7 @@ const UserProfile = () => {
             {!isEditingInterests ? (
               <div className="text-center max-w-2xl">
                 <p className="text-gray-700 leading-relaxed mb-4">
-                  {personalityAnalysis.interest_text || profile?.interest_text || 'No interests specified'}
+                  {interestDisplay}
                 </p>
                 <button
                   onClick={startEditInterests}
@@ -595,14 +742,39 @@ const UserProfile = () => {
           <p className="text-gray-600 mb-4 text-left">
             These are the main topics that will be generated for your content based on your personality.
           </p>
+          {usingFallbackPillars && (
+            <p className="text-sm text-orange-600 mb-4">
+              Your personalized pillars are being generated. Showing baseline pillars for now.
+            </p>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {personalityAnalysis.contentPillars?.map((pillar, index) => (
-              <div key={index} className="flex items-center space-x-3 p-3 bg-orange-50 rounded text-left">
-                <div/>
+            {displayPillars?.map((pillar, index) => (
+              <div key={index} className="p-4 bg-orange-50 rounded text-left space-y-2">
                 <div>
                   <p className="font-medium text-gray-900 text-left">{pillar.name}</p>
                   <p className="text-sm text-gray-600">{pillar.description}</p>
                 </div>
+                {pillar.rationale && (
+                  <p className="text-sm text-gray-500">
+                    <span className="font-medium text-gray-700">Why it matters:</span> {pillar.rationale}
+                  </p>
+                )}
+                {(pillar.tone || (pillar.postingIdeas && pillar.postingIdeas.length > 0)) && (
+                  <div className="space-y-2">
+                    {pillar.tone && (
+                      <span className="inline-block px-2 py-1 text-xs font-medium text-orange-700 bg-orange-100 rounded">
+                        Tone: {pillar.tone}
+                      </span>
+                    )}
+                    {Array.isArray(pillar.postingIdeas) && pillar.postingIdeas.length > 0 && (
+                      <ul className="text-sm text-gray-600 space-y-1">
+                        {pillar.postingIdeas.map((idea, ideaIndex) => (
+                          <li key={ideaIndex}>• {idea}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </div>

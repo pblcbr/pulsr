@@ -1,11 +1,13 @@
 import React from "react";
 import { motion } from "framer-motion";
 
+const MotionDiv = motion.div;
+
 function ProgressBar({ percent }) {
   return (
     <div className="mb-8">
       <div className="h-2 w-full rounded bg-neutral-200 overflow-hidden">
-        <motion.div
+        <MotionDiv
           className="h-2 bg-black"
           initial={{ width: 0 }}
           animate={{ width: `${percent}%` }}

@@ -1,10 +1,7 @@
-import { useAuth } from '../contexts/AuthContext'
 import Sidebar from '../components/Sidebar'
 import Header from '../components/Header'
 
 const Dashboard = () => {
-  const { user } = useAuth()
-
   return (
     <div className="flex h-screen">
       {/* Sidebar */}

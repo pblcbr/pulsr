@@ -7,6 +7,7 @@ const StripeContext = createContext();
 // Initialize Stripe
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useStripeContext = () => {
   const context = useContext(StripeContext);
   if (!context) {
@@ -19,12 +20,14 @@ export const StripeProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+
   const createCheckoutSession = async (planId, planName, price) => {
     setIsLoading(true);
     setError(null);
 
     try {
-      const response = await fetch('http://localhost:3001/api/create-checkout-session', {
+      const response = await fetch(`${backendUrl}/api/create-checkout-session`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -63,7 +66,7 @@ export const StripeProvider = ({ children }) => {
     setError(null);
 
     try {
-      const response = await fetch('http://localhost:3001/api/create-portal-session', {
+      const response = await fetch(`${backendUrl}/api/create-portal-session`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

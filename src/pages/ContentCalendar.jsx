@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import PaymentButton from '../components/PaymentButton';
-import { mockProfile } from '../data/mockProfile';
 import { analyzePersonality } from '../services/personalityAnalyzer';
 import { generatePersonalizedContent } from '../services/contentGenerator';
+import { getCurrentUserProfile } from '../services/profileService';
+import { formatDistanceToNow } from 'date-fns';
 
 const ContentCalendar = () => {
-  const { user } = useAuth();
   const [profile, setProfile] = useState(null);
+  const [profileLoaded, setProfileLoaded] = useState(false);
   const [pillars, setPillars] = useState([]);
   const [content, setContent] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [personalityAnalysis, setPersonalityAnalysis] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState('today');
   const [showPaywall, setShowPaywall] = useState(false);
@@ -65,30 +64,37 @@ const ContentCalendar = () => {
 
   const loadInitialData = async () => {
     try {
-      // Load mock profile (in production this would come from the database)
-      setProfile(mockProfile);
-      
-      // Analyze personality to generate pillars
-      const analysis = analyzePersonality(mockProfile);
-      setPersonalityAnalysis(analysis);
-      
-      // Pillars are automatically generated based on personality
-      setPillars(analysis.contentPillars);
-      
-      // Initially no content - it is generated when the user requests it
+      const currentProfile = await getCurrentUserProfile();
+
+      if (!currentProfile) {
+        console.warn('No profile found for current user.');
+        setProfile(null);
+        return;
+      }
+
+      setProfile(currentProfile);
+
+      const analysis = analyzePersonality(currentProfile);
+
+      const rawPillars = Array.isArray(currentProfile.content_pillars_ai) && currentProfile.content_pillars_ai.length > 0
+        ? currentProfile.content_pillars_ai
+        : analysis.contentPillars;
+
+      const enhancedPillars = rawPillars.map((pillar, index) => ({
+        id: pillar.id || `pillar-${index}`,
+        name: pillar.name,
+        description: pillar.description,
+        rationale: pillar.rationale,
+        tone: pillar.tone,
+        postingIdeas: pillar.postingIdeas,
+      }));
+
+      setPillars(enhancedPillars);
       setContent([]);
     } catch (error) {
       console.error('Error loading initial data:', error);
-    }
-  };
-
-  const getPeriodDays = (period) => {
-    switch (period) {
-      case 'today': return 1;
-      case '1-post-week': return 7;
-      case '3-posts-week': return 7;
-      case 'daily-posts': return 7;
-      default: return 1;
+    } finally {
+      setProfileLoaded(true);
     }
   };
 
@@ -126,7 +132,6 @@ const ContentCalendar = () => {
       
       if (result.success) {
         setContent(result.content);
-        setPersonalityAnalysis(result.personalityAnalysis);
       } else {
         console.error('Error generating content:', result.error);
       }
@@ -179,7 +184,7 @@ const ContentCalendar = () => {
     setTimeout(() => setShowToast(false), 2000);
   };
 
-  if (!profile) {
+  if (!profileLoaded) {
     return (
       <div className="flex h-screen">
         <Sidebar />
@@ -198,6 +203,35 @@ const ContentCalendar = () => {
     );
   }
 
+  if (!profile) {
+    return (
+      <div className="flex h-screen">
+        <Sidebar />
+        <div className="flex-1 flex flex-col">
+          <Header />
+          <main className="flex-1 overflow-y-auto">
+            <div className="flex items-center justify-center h-64">
+              <div className="text-center space-y-2">
+                <p className="text-gray-900 font-medium">We need a profile before we can build your calendar.</p>
+                <p className="text-gray-600">Complete onboarding to generate your personalized pillars.</p>
+              </div>
+            </div>
+          </main>
+        </div>
+      </div>
+    );
+  }
+
+  const hasAiPillars = Array.isArray(profile.content_pillars_ai) && profile.content_pillars_ai.length > 0;
+  const strategy = hasAiPillars ? profile.content_strategy_ai || {} : {};
+  const aiUpdatedRelative = profile.ai_generated_at
+    ? formatDistanceToNow(new Date(profile.ai_generated_at), { addSuffix: true })
+    : null;
+  const personaSummary = hasAiPillars ? profile.ai_persona_summary : null;
+  const strategyCadence = strategy.cadence;
+  const strategyCallsToAction = Array.isArray(strategy.callToActions) ? strategy.callToActions : [];
+  const strategyKeyMetrics = Array.isArray(strategy.keyMetrics) ? strategy.keyMetrics : [];
+
   return (
     <div className="flex h-screen">
       <Sidebar />
@@ -213,6 +247,51 @@ const ContentCalendar = () => {
               Generate personalized content based on your personality profile
             </p>
           </div>
+
+          {hasAiPillars && (
+            <div className="mb-8 bg-white border border-orange-200 rounded-lg p-6 shadow-sm">
+              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                <div className="flex-1">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-2">Your AI Persona</h2>
+                  {personaSummary ? (
+                    <p className="text-gray-700 leading-relaxed">{personaSummary}</p>
+                  ) : (
+                    <p className="text-gray-600">Personalized summary pending from AI.</p>
+                  )}
+                </div>
+                {aiUpdatedRelative && (
+                  <div className="text-sm text-gray-500">Updated {aiUpdatedRelative}</div>
+                )}
+              </div>
+
+              <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="p-4 bg-orange-50 rounded-lg">
+                  <p className="text-xs uppercase tracking-wide text-orange-700 mb-1">Cadence</p>
+                  <p className="text-gray-900 font-medium">{strategyCadence || 'Use default frequency below'}</p>
+                </div>
+                <div className="p-4 bg-orange-50 rounded-lg">
+                  <p className="text-xs uppercase tracking-wide text-orange-700 mb-1">Calls to Action</p>
+                  <ul className="text-sm text-gray-700 space-y-1">
+                    {strategyCallsToAction.length > 0 ? (
+                      strategyCallsToAction.map((cta, index) => <li key={index}>• {cta}</li>)
+                    ) : (
+                      <li>Prompt audience engagement each post.</li>
+                    )}
+                  </ul>
+                </div>
+                <div className="p-4 bg-orange-50 rounded-lg">
+                  <p className="text-xs uppercase tracking-wide text-orange-700 mb-1">Key Metrics</p>
+                  <ul className="text-sm text-gray-700 space-y-1">
+                    {strategyKeyMetrics.length > 0 ? (
+                      strategyKeyMetrics.map((metric, index) => <li key={index}>• {metric}</li>)
+                    ) : (
+                      <li>Monitor saves and meaningful replies.</li>
+                    )}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Period Selection */}
           <div className="mb-8">

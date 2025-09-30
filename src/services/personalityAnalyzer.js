@@ -1,6 +1,4 @@
 // Personality analyzer based on onboarding results
-import computeResults from '../utils/computeResults';
-import QUESTIONS from '../data/questions.json';
 
 /**
  * Analyzes user personality based on onboarding results
@@ -19,22 +17,20 @@ export const analyzePersonality = (profile) => {
     audience,
     tech_comfort,
     structure_flex,
-    solo_team,
     positioning_statement
   } = profile;
 
   // Backward/forward compatible slider fields
   const structureFlex = structure_flex ?? profile.structured_flexible ?? null;
-  const soloTeam = solo_team ?? profile.independent_team ?? null;
 
   // Calculate totals to determine dominant type
   const totals = {
-    practical,
-    analytical,
-    creative,
-    social,
-    entrepreneurial,
-    organized
+    practical: practical ?? 0,
+    analytical: analytical ?? 0,
+    creative: creative ?? 0,
+    social: social ?? 0,
+    entrepreneurial: entrepreneurial ?? 0,
+    organized: organized ?? 0
   };
 
   // Sort by score to get dominant types
@@ -64,6 +60,7 @@ export const analyzePersonality = (profile) => {
     secondaryType,
     primaryScore,
     secondaryScore,
+    totals,
     contentPillars,
     tone,
     interests,
@@ -139,7 +136,33 @@ const generateContentPillars = (personalityType, businessModel, audience) => {
     return [...pillars1.slice(0, 2), ...pillars2.slice(0, 2)];
   }
 
-  return pillarTemplates[personalityType] || pillarTemplates['analytical'];
+  let selected = pillarTemplates[personalityType] || pillarTemplates['analytical'];
+
+  if (businessModel === 'service' && selected.length > 0) {
+    selected = [{
+      ...selected[0],
+      name: 'Client Success Stories',
+      description: 'Case studies and testimonials that build trust for services',
+    }, ...selected.slice(1)];
+  } else if (businessModel === 'content' && selected.length > 0) {
+    selected = [{
+      ...selected[0],
+      name: 'Content Playbooks',
+      description: 'Frameworks and behind-the-scenes of your content process',
+    }, ...selected.slice(1)];
+  }
+
+  if (audience === 'business') {
+    selected = selected.map((pillar, index) => index === 0
+      ? { ...pillar, description: `${pillar.description} tailored for B2B decision makers` }
+      : pillar);
+  } else if (audience === 'broad_online') {
+    selected = selected.map((pillar, index) => index === 0
+      ? { ...pillar, description: `${pillar.description} crafted for a broad online audience` }
+      : pillar);
+  }
+
+  return selected;
 };
 
 /**
@@ -216,41 +239,70 @@ const getContentStrategy = (personalityType, businessModel, audience) => {
       focus: 'Data, analysis and insights',
       format: 'Threads with data, charts, statistics',
       frequency: '3-4 posts per week',
-      engagement: 'Questions that invite reflection'
+      engagement: 'Questions that invite reflection',
+      callToActions: ['Share a data point', 'Bookmark for later'],
+      keyMetrics: ['Saves', 'Comments']
     },
     'entrepreneurial': {
       focus: 'Strategies, lessons and growth',
       format: 'Case studies, lessons learned',
       frequency: '5-6 posts per week',
-      engagement: 'Questions about experiences'
+      engagement: 'Questions about experiences',
+      callToActions: ['Share your startup lesson', 'DM for resources'],
+      keyMetrics: ['Profile visits', 'Lead form clicks']
     },
     'creative': {
       focus: 'Creative processes and inspiration',
       format: 'Visual content, stories, inspiration',
       frequency: '4-5 posts per week',
-      engagement: 'Questions that invite creativity'
+      engagement: 'Questions that invite creativity',
+      callToActions: ['Drop your favorite inspiration', 'Share with a creative friend'],
+      keyMetrics: ['Reshares', 'Follower growth']
     },
     'practical': {
       focus: 'Tutorials and practical solutions',
       format: 'Step-by-step guides, tips, tools',
       frequency: '3-4 posts per week',
-      engagement: 'Questions about implementation'
+      engagement: 'Questions about implementation',
+      callToActions: ['Try this tactic', 'Comment if you need the template'],
+      keyMetrics: ['Click-throughs', 'Comments']
     },
     'social': {
       focus: 'Community and connections',
       format: 'Personal stories, networking, collaboration',
       frequency: '4-5 posts per week',
-      engagement: 'Questions that encourage conversation'
+      engagement: 'Questions that encourage conversation',
+      callToActions: ['Tag someone who relates', 'Share your story'],
+      keyMetrics: ['Mentions', 'Conversation depth']
     },
     'organized': {
       focus: 'Systems and productivity',
       format: 'Frameworks, methodologies, organization',
       frequency: '3-4 posts per week',
-      engagement: 'Questions about organization'
+      engagement: 'Questions about organization',
+      callToActions: ['Save this system', 'Comment with your workflow'],
+      keyMetrics: ['Saves', 'Process inquiries']
     }
   };
 
-  return strategies[personalityType] || strategies['analytical'];
+  const baseStrategy = strategies[personalityType] || strategies['analytical'];
+  const enrichedStrategy = { ...baseStrategy };
+
+  if (businessModel === 'service') {
+    enrichedStrategy.focus += ' • Highlight transformation and client wins';
+    enrichedStrategy.callToActions = ['Book a discovery call', 'Download the service guide'];
+  } else if (businessModel === 'content') {
+    enrichedStrategy.focus += ' • Showcase content creation systems';
+    enrichedStrategy.callToActions = ['Subscribe to the newsletter', 'Share your take'];
+  }
+
+  if (audience === 'business') {
+    enrichedStrategy.keyMetrics = ['Qualified leads', 'Decision maker replies'];
+  } else if (audience === 'broad_online') {
+    enrichedStrategy.keyMetrics = ['Shares', 'Follower growth'];
+  }
+
+  return enrichedStrategy;
 };
 
 /**
