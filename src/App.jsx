@@ -1,11 +1,14 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
+import { StripeProvider } from './contexts/StripeContext'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import Onboarding from './pages/Onboarding'
 import UserProfile from './pages/UserProfile'
 import ContentCalendar from './pages/ContentCalendar'
+import Success from './pages/Success'
+import Cancel from './pages/Cancel'
 
 import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabase'
@@ -128,61 +131,79 @@ const PublicRoute = ({ children }) => {
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <div className="App">
-          <Routes>
-            <Route 
-              path="/login" 
-              element={
-                <PublicRoute>
-                  <Login />
-                </PublicRoute>
-              } 
-            />
-            <Route 
-              path="/register" 
-              element={
-                <PublicRoute>
-                  <Register />
-                </PublicRoute>
-              } 
-            />
-            <Route 
-              path="/dashboard" 
-              element={
-                <ProtectedRoute requiresOnboarding={true}>
-                  <Dashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route
-                path="/onboarding"
+      <StripeProvider>
+        <Router>
+          <div className="App">
+            <Routes>
+              <Route 
+                path="/login" 
+                element={
+                  <PublicRoute>
+                    <Login />
+                  </PublicRoute>
+                } 
+              />
+              <Route 
+                path="/register" 
+                element={
+                  <PublicRoute>
+                    <Register />
+                  </PublicRoute>
+                } 
+              />
+              <Route 
+                path="/dashboard" 
+                element={
+                  <ProtectedRoute requiresOnboarding={true}>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route
+                  path="/onboarding"
+                  element={
+                    <ProtectedRoute>
+                      <Onboarding />
+                    </ProtectedRoute>
+                  }
+                />
+              <Route 
+                path="/profile" 
                 element={
                   <ProtectedRoute>
-                    <Onboarding />
+                    <UserProfile />
                   </ProtectedRoute>
-                }
+                } 
               />
-            <Route 
-              path="/profile" 
-              element={
-                <ProtectedRoute>
-                  <UserProfile />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/content-calendar" 
-              element={
-                <ProtectedRoute>
-                  <ContentCalendar />
-                </ProtectedRoute>
-              } 
-            />
-            <Route path="/" element={<Navigate to="/dashboard" />} />
-          </Routes>
-        </div>
-      </Router>
+              <Route 
+                path="/content-calendar" 
+                element={
+                  <ProtectedRoute>
+                    <ContentCalendar />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/success" 
+                element={
+                  <ProtectedRoute>
+                    <Success />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/cancel" 
+                element={
+                  <ProtectedRoute>
+                    <Cancel />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route path="/" element={<Navigate to="/dashboard" />} />
+            </Routes>
+          </div>
+        </Router>
+      </StripeProvider>
     </AuthProvider>
   )
 }
