@@ -5,9 +5,12 @@ import PaymentButton from '../components/PaymentButton';
 import { analyzePersonality } from '../services/personalityAnalyzer';
 import { generatePersonalizedContent } from '../services/contentGenerator';
 import { getCurrentUserProfile } from '../services/profileService';
+import { postsService } from '../services/postService';
+import { useAuth } from '../contexts/AuthContext';
 import { formatDistanceToNow } from 'date-fns';
 
 const ContentCalendar = () => {
+  const { user } = useAuth();
   const [profile, setProfile] = useState(null);
   const [profileLoaded, setProfileLoaded] = useState(false);
   const [pillars, setPillars] = useState([]);
@@ -132,12 +135,16 @@ const ContentCalendar = () => {
   };
 
   const handleGenerateContent = async () => {
-    if (!profile || !pillars.length) return;
+    if (!profile || !pillars.length || !user) return;
 
     setIsGenerating(true);
     try {
       const postsCount = getPostsCount(selectedPeriod);
-      const result = await generatePersonalizedContent(profile, pillars, {
+      
+      // Find the selected pillar object
+      const pillarToUse = pillars.find(p => p.id === selectedPillar) || pillars[0];
+      
+      const result = await generatePersonalizedContent(profile, [pillarToUse], {
         postsCount,
         includeWeekends: true,
         postingFrequency: 'auto',
@@ -145,7 +152,38 @@ const ContentCalendar = () => {
       });
 
       if (result?.success) {
-        setContent(result.content || []);
+        const generatedPosts = result.content || [];
+        
+        // Save posts to database
+        const savedPosts = [];
+        for (const post of generatedPosts) {
+          const postData = {
+            user_id: user.id,
+            title: post.title,
+            content: post.content,
+            body_md: post.body_md,
+            summary: post.summary,
+            keywords: post.keywords,
+            hashtags: post.hashtags,
+            pillar_id: pillarToUse.id,
+            pillar_name: pillarToUse.name,
+            status: 'draft',
+            scheduled_at: post.scheduled_at,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          };
+          
+          try {
+            const savedPost = await postsService.createPost(postData);
+            savedPosts.push(savedPost);
+          } catch (dbError) {
+            console.error('Error saving post to database:', dbError);
+            // Still add the post to the UI even if DB save fails
+            savedPosts.push({ ...postData, id: `temp-${Date.now()}` });
+          }
+        }
+        
+        setContent(savedPosts);
       } else {
         console.error('Error generating content:', result?.error);
       }
