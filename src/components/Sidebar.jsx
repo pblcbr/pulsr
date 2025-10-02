@@ -16,7 +16,7 @@ const Sidebar = () => {
         {/* Logo */}
         <div className="mb-8 flex justify-center items-center">
           <Link to="/dashboard" className="flex items-center space-x-3">
-            <img src="public/pulsr-logo.ico" alt="Pulsr Logo" className="w-12 h-12" /> 
+            <img src="/pulsr-logo.ico" alt="Pulsr Logo" className="w-12 h-12" /> 
             <h1 className="text-2xl font-bold text-orange-500">Pulsr</h1>
           </Link>
         </div>
