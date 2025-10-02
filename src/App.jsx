@@ -154,7 +154,7 @@ function App() {
               <Route 
                 path="/dashboard" 
                 element={
-                  <ProtectedRoute requiresOnboarding={true}>
+                  <ProtectedRoute>
                     <Dashboard />
                   </ProtectedRoute>
                 } 

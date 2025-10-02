@@ -16,24 +16,27 @@ export const generatePersonalizedContent = async (profile, pillars, options = {}
     const personalityAnalysis = analyzePersonality(profile);
     
     // Configure default options
-  const {
-    days = 30,
-    includeWeekends = true,
-    postingFrequency = 'auto'
-  } = options;
+    const {
+      postsCount = 1,
+      includeWeekends = true,
+      postingFrequency = 'auto'
+    } = options;
 
     // Determine posting frequency
     const frequency = postingFrequency === 'auto' 
       ? personalityAnalysis.postingFrequency 
       : postingFrequency;
 
+    // Calculate days needed based on posts count and frequency
+    const days = Math.ceil(postsCount / (frequency === 'daily' ? 1 : frequency === 'weekly' ? 0.14 : 0.43));
+    
     // Generate posting dates
     const postingDates = generatePostingDates(days, frequency, includeWeekends);
     
     let content = [];
 
     // Always use OpenAI to generate content
-    content = await generateCalendarContent(personalityAnalysis, pillars, days);
+    content = await generateCalendarContent(personalityAnalysis, pillars, postsCount);
 
     // Assign posting dates
     content = assignPostingDates(content, postingDates);
@@ -160,7 +163,7 @@ export const regenerateContentForDateRange = async (profile, pillars, startDate,
     const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
     const personalityAnalysis = analyzePersonality(profile);
     
-    const content = await generateCalendarContent(personalityAnalysis, pillars, days);
+    const content = await generateCalendarContent(personalityAnalysis, pillars, 1);
     
     // Adjust dates to the specified range
     const adjustedContent = content.map((post, index) => {
@@ -267,11 +270,11 @@ const getDateRange = (content) => {
 /**
  * Generates multiple posts for a calendar using OpenAI
  */
-export const generateCalendarContent = async (profile, pillars, days = 30) => {
+export const generateCalendarContent = async (profile, pillars, postsCount = 1) => {
   const content = [];
   const startDate = new Date();
   
-  for (let i = 0; i < days; i++) {
+  for (let i = 0; i < postsCount; i++) {
     const scheduledDate = new Date(startDate);
     scheduledDate.setDate(startDate.getDate() + i);
     
@@ -279,19 +282,27 @@ export const generateCalendarContent = async (profile, pillars, days = 30) => {
     const pillar = pillars[Math.floor(Math.random() * pillars.length)];
     
     try {
+      console.log(`Generating content for post ${i + 1}/${postsCount}`);
       const post = await generateContent(profile, pillar, scheduledDate);
-      content.push({
+      console.log('Generated post:', post);
+      
+      const finalPost = {
         id: `generated-${Date.now()}-${i}`,
         user_id: profile.user_id,
         profile_id: profile.id,
         type: 'tweet',
         channel: 'Twitter',
         pillar_id: pillar.id,
+        date: scheduledDate.toISOString(),
+        scheduled_at: scheduledDate.toISOString(),
         ...post
-      });
+      };
+      
+      console.log('Final post object:', finalPost);
+      content.push(finalPost);
     } catch (error) {
-      console.error(`Error generating content for day ${i}:`, error);
-      // Continue with the next day
+      console.error(`Error generating content for post ${i}:`, error);
+      // Continue with the next post
     }
   }
   

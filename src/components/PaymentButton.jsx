@@ -1,8 +1,8 @@
 import React from 'react';
-import { useStripeContext } from '../contexts/StripeContext';
+import { useStripe } from '../contexts/StripeContext';
 
 const PaymentButton = ({ planId, planName, price, period, className }) => {
-  const { createCheckoutSession, isLoading, error } = useStripeContext();
+  const { createCheckoutSession, isLoading, error } = useStripe();
 
   const handlePayment = async () => {
     await createCheckoutSession(planId, planName, price);

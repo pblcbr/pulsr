@@ -25,7 +25,7 @@ const supabase = (supabaseUrl && supabaseKey)
 const AI_VERSION = 'content-pillars-v1';
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 const defaultOrigins = ['http://localhost:5173', 'http://localhost:5174'];

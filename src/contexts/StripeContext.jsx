@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 
+
 const StripeContext = createContext();
 
 // Initialize Stripe
@@ -11,16 +12,20 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 export const useStripeContext = () => {
   const context = useContext(StripeContext);
   if (!context) {
-    throw new Error('useStripeContext must be used within a StripeProvider');
+    throw new Error('useStripe must be used within a StripeProvider');
   }
   return context;
 };
+
+// Alias for consistency
+// eslint-disable-next-line react-refresh/only-export-components
+export const useStripe = useStripeContext;
 
 export const StripeProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
 
   const createCheckoutSession = async (planId, planName, price) => {
     setIsLoading(true);
@@ -37,7 +42,7 @@ export const StripeProvider = ({ children }) => {
           planName,
           price,
           successUrl: `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-          cancelUrl: `${window.location.origin}/cancel`,
+          cancelUrl: `${window.location.origin}/content-calendar`,
           userId: 'user_123', // Replace with actual user ID
         }),
       });

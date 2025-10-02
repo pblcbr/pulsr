@@ -151,9 +151,19 @@ export const saveOnboardingResults = async (onboardingResults) => {
   }
 };
 
-export default {
+/**
+ * Gets a profile by user ID (alias for getCurrentUserProfile for compatibility)
+ */
+export const getProfile = async (userId) => {
+  return await getCurrentUserProfile();
+};
+
+export const profileService = {
   getCurrentUserProfile,
+  getProfile,
   updateUserProfile,
   createUserProfile,
   saveOnboardingResults
 };
+
+export default profileService;

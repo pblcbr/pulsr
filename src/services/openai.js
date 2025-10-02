@@ -86,14 +86,16 @@ Generate a Twitter post based on the following user profile:
 5. Use relevant hashtags (maximum 3)
 6. Maintain focus on: ${contentStrategy.focus}
 
-**Response format:**
+**IMPORTANT: Response format - be very precise:**
 {
   "title": "Post title",
-  "body_md": "Content in Markdown format",
+  "body_md": "ONLY the actual social media post content (tweet thread, post text, etc.) - DO NOT include the title, summary, or hashtags in this field",
   "summary": "Content summary",
   "keywords": "keywords separated by commas",
   "hashtags": ["#hashtag1", "#hashtag2", "#hashtag3"]
 }
+
+**CRITICAL:** The "body_md" field should contain ONLY the post content itself (like the actual tweets or post text), not the title, summary, or hashtags. Those go in their respective fields.
 
 Generate content that is valuable, authentic and reflects the ${personalityType} personality of the user.
 `;
@@ -108,11 +110,12 @@ const parseGeneratedContent = (generatedContent, profile, pillar, scheduledDate)
     const content = JSON.parse(generatedContent);
     
     return {
-      title: content.title || `Post sobre ${pillar.name}`,
+      title: content.title || `Post about ${pillar.name}`,
+      content: content.content || content.body_md || generatedContent,
       body_md: content.body_md || generatedContent,
-      summary: content.summary || `Contenido sobre ${pillar.name}`,
+      summary: content.summary || `Content about ${pillar.name}`,
       keywords: content.keywords || pillar.name.toLowerCase(),
-      hashtags: content.hashtags || [`#${pillar.name.toLowerCase().replace(/\s+/g, '')}`],
+      hashtags: content.hashtags || `#${pillar.name.toLowerCase().replace(/\s+/g, '')}`,
       status: 'draft',
       scheduled_at: scheduledDate.toISOString(),
       created_at: new Date().toISOString(),
@@ -123,6 +126,7 @@ const parseGeneratedContent = (generatedContent, profile, pillar, scheduledDate)
     // If not valid JSON, use content as is
     return {
       title: `Post about ${pillar.name}`,
+      content: generatedContent,
       body_md: generatedContent,
       summary: `Generated content about ${pillar.name}`,
       keywords: pillar.name.toLowerCase(),
@@ -147,9 +151,9 @@ const generateFallbackContent = (profile, pillar, scheduledDate) => {
   const content = template.replace('{topic}', topic).replace('{pillar}', pillar.name);
   
   return {
-    title: `Post sobre ${pillar.name}`,
+    title: `Post about ${pillar.name}`,
     body_md: content,
-    summary: `Contenido sobre ${pillar.name}`,
+    summary: `Content about ${pillar.name}`,
     keywords: `${pillar.name.toLowerCase()}, ${topic}`,
     hashtags: [`#${pillar.name.toLowerCase().replace(/\s+/g, '')}`, `#${topic.replace(/\s+/g, '')}`],
     status: 'draft',

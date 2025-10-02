@@ -12,13 +12,17 @@
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
-    "openai": "^4.76.0",
+    "openai": "^4.104.0",
     "stripe": "^14.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
   },
-  "keywords": ["stripe", "payment", "subscription"],
+  "keywords": [
+    "stripe",
+    "payment",
+    "subscription"
+  ],
   "author": "Pulsr Team",
   "license": "MIT"
 }
