@@ -28,7 +28,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-const defaultOrigins = ['http://localhost:5173', 'http://localhost:5174', 'https://pulsr.netlify.app'];
+const defaultOrigins = ['http://localhost:5173', 'http://localhost:5174'];
 const envOrigins = (process.env.FRONTEND_URL || '')
   .split(',')
   .map((origin) => origin.trim().replace(/\/?$/, ''))
@@ -332,11 +332,15 @@ app.post('/api/create-checkout-session', async (req, res) => {
 // Create Customer Portal Session
 app.post('/api/create-portal-session', async (req, res) => {
   try {
-    const { customerId } = req.body;
+    const { customerId, returnUrl } = req.body;
+    
+    const defaultReturnUrl = process.env.FRONTEND_URL 
+      ? `${process.env.FRONTEND_URL.split(',')[0]}/content-calendar`
+      : 'http://localhost:5174/content-calendar';
 
     const session = await stripe.billingPortal.sessions.create({
       customer: customerId,
-      return_url: 'http://localhost:5174/content-calendar',
+      return_url: returnUrl || defaultReturnUrl,
     });
 
     res.json({ url: session.url });
