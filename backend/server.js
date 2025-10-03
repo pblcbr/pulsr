@@ -27,48 +27,40 @@ const AI_VERSION = 'content-pillars-v1';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
-const defaultOrigins = ['http://localhost:5173', 'http://localhost:5174'];
-const envOrigins = (process.env.FRONTEND_URL || '')
+// Middleware - CORS Configuration
+const frontendUrls = (process.env.FRONTEND_URL || '')
   .split(',')
-  .map((origin) => origin.trim().replace(/\/?$/, ''))
+  .map((url) => url.trim())
   .filter(Boolean);
 
-const allowedOrigins = new Set([...defaultOrigins, ...envOrigins]);
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'https://pulsr.netlify.app',
+  ...frontendUrls
+];
 
-console.log('Allowed CORS origins:', Array.from(allowedOrigins));
+console.log('🌐 Allowed CORS origins:', allowedOrigins);
 
 const corsOptions = {
-  origin(origin, callback) {
-    console.log('CORS request from origin:', origin);
-    console.log('Allowed origins:', Array.from(allowedOrigins));
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or Postman)
+    if (!origin) return callback(null, true);
     
-    // Normalize both the incoming origin and allowed origins
-    const normalizedOrigin = origin ? origin.replace(/\/$/, '') : origin;
-    const isAllowed = !origin || 
-                     allowedOrigins.has(normalizedOrigin) ||
-                     Array.from(allowedOrigins).some(allowed => 
-                       allowed === normalizedOrigin
-                     );
-    
-    if (isAllowed) {
-      console.log('✅ Origin allowed:', normalizedOrigin);
-      return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.error('❌ CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
     }
-    
-    console.error('❌ Origin NOT allowed:', normalizedOrigin);
-    console.error('Expected one of:', Array.from(allowedOrigins));
-    return callback(new Error(`Origin ${origin} not allowed by CORS`));
   },
-  methods: ['GET', 'POST', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
+  optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions), (req, res) => {
-  res.sendStatus(204);
-});
 app.use(express.json());
 
 function assertServerReady() {
