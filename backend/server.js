@@ -36,15 +36,20 @@ const envOrigins = (process.env.FRONTEND_URL || '')
 
 const allowedOrigins = new Set([...defaultOrigins, ...envOrigins]);
 
+console.log('Allowed CORS origins:', Array.from(allowedOrigins));
+
 const corsOptions = {
   origin(origin, callback) {
+    console.log('CORS request from origin:', origin);
     if (!origin || allowedOrigins.has(origin.replace(/\/?$/, ''))) {
       return callback(null, true);
     }
+    console.error(`Origin ${origin} not allowed by CORS`);
     return callback(new Error(`Origin ${origin} not allowed by CORS`));
   },
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
 };
 
 app.use(cors(corsOptions));
