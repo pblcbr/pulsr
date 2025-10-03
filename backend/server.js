@@ -41,10 +41,23 @@ console.log('Allowed CORS origins:', Array.from(allowedOrigins));
 const corsOptions = {
   origin(origin, callback) {
     console.log('CORS request from origin:', origin);
-    if (!origin || allowedOrigins.has(origin.replace(/\/?$/, ''))) {
+    console.log('Allowed origins:', Array.from(allowedOrigins));
+    
+    // Normalize both the incoming origin and allowed origins
+    const normalizedOrigin = origin ? origin.replace(/\/$/, '') : origin;
+    const isAllowed = !origin || 
+                     allowedOrigins.has(normalizedOrigin) ||
+                     Array.from(allowedOrigins).some(allowed => 
+                       allowed === normalizedOrigin
+                     );
+    
+    if (isAllowed) {
+      console.log('✅ Origin allowed:', normalizedOrigin);
       return callback(null, true);
     }
-    console.error(`Origin ${origin} not allowed by CORS`);
+    
+    console.error('❌ Origin NOT allowed:', normalizedOrigin);
+    console.error('Expected one of:', Array.from(allowedOrigins));
     return callback(new Error(`Origin ${origin} not allowed by CORS`));
   },
   methods: ['GET', 'POST', 'OPTIONS'],
