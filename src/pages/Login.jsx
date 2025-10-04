@@ -39,7 +39,7 @@ const Login = () => {
         <div className="max-w-md w-full space-y-8">
           {/* Header */}
           <div className="text-center">
-            <h2 className="mt-8 text-4xl font-black text-blue-600">
+            <h2 className="mt-8 text-4xl font-black text-orange-600">
               Welcome back
             </h2>
             <p className="mt-3 text-lg font-light">
@@ -80,7 +80,7 @@ const Login = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="w-full px-5 py-4 bg-white border-2 border-gray-200 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 font-medium"
+                      className="w-full px-5 py-4 bg-white border-2 border-gray-200 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 font-medium"
                       placeholder="Enter your email"
                     />
                   </div>
@@ -97,7 +97,7 @@ const Login = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="w-full px-5 py-4 bg-white border-2 border-gray-200 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 font-medium"
+                      className="w-full px-5 py-4 bg-white border-2 border-gray-200 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 font-medium"
                       placeholder="Enter your password"
                     />
                   </div>
@@ -106,7 +106,7 @@ const Login = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex justify-center items-center py-4 px-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full flex justify-center items-center py-4 px-6 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? (
                     <div className="flex items-center space-x-3">
@@ -135,7 +135,7 @@ const Login = () => {
                 <div className="mt-8 text-center">
                   <Link 
                     to="/register" 
-                    className="inline-flex items-center px-6 py-3 bg-gray-100 hover:bg-gray-200 font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl"
+                    className="inline-flex items-center px-6 py-3 bg-gray-100 hover:bg-gray-200 text-orange-700 font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl"
                   >
                     Create your account
                    

@@ -8,7 +8,7 @@ import { useAuth } from "../contexts/AuthContext";
 function inlineSpinner() {
   return (
     <div className="flex justify-center items-center py-16">
-      <div className="w-8 h-8 border-4 border-gray-300 border-t-black rounded-full animate-spin" />
+      <div className="w-8 h-8 border-4 border-gray-200 border-t-orange-500 rounded-full animate-spin" />
     </div>
   );
 }
@@ -104,24 +104,24 @@ function Onboarding() {
   if (errorMessage) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-8">
-        <h1 className="text-xl font-semibold mb-2">Onboarding Questionnaire</h1>
-        <p className="text-red-600">Error: {errorMessage}</p>
+        <h1 className="text-xl font-semibold text-orange-500 mb-2">Onboarding Questionnaire</h1>
+        <p className="text-red-500">Error: {errorMessage}</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-gray-50">
       <div className="mx-auto max-w-3xl px-4 py-8">
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold">Onboarding Questionnaire</h1>
-          <p className="text-neutral-500">
+          <h1 className="text-3xl font-semibold text-orange-500">Onboarding Questionnaire</h1>
+          <p className="text-gray-600">
             ~5 minutes • one question at a time
           </p>
         </div>
 
         {(!questions || questions.length === 0) ? (
-          <p className="text-center py-12 text-neutral-500">
+          <p className="text-center py-12 text-gray-500">
             No questions available.
           </p>
         ) : (

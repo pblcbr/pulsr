@@ -70,7 +70,7 @@ const Register = () => {
         <div className="max-w-md w-full space-y-8">
           {/* Header */}
           <div className="text-center">
-            <h2 className="mt-8 text-4xl font-black text-purple-600">
+            <h2 className="mt-8 text-4xl font-black text-orange-600">
               Join Pulsr
             </h2>
             <p className="mt-3 text-lg text-gray-600 font-light">
@@ -113,7 +113,7 @@ const Register = () => {
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                       required
-                      className="w-full px-5 py-4 bg-white border-2 border-gray-200 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300 text-gray-800 font-medium"
+                      className="w-full px-5 py-4 bg-white border-2 border-gray-200 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 text-gray-800 font-medium"
                       placeholder="Enter your first name"
                     />
                   </div>
@@ -130,7 +130,7 @@ const Register = () => {
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       required
-                      className="w-full px-5 py-4 bg-white border-2 border-gray-200 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300 text-gray-800 font-medium"
+                      className="w-full px-5 py-4 bg-white border-2 border-gray-200 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 text-gray-800 font-medium"
                       placeholder="Enter your last name"
                     />
                   </div>
@@ -147,7 +147,7 @@ const Register = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="w-full px-5 py-4 bg-white border-2 border-gray-200 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300 text-gray-800 font-medium"
+                      className="w-full px-5 py-4 bg-white border-2 border-gray-200 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 text-gray-800 font-medium"
                       placeholder="Enter your email"
                     />
                   </div>
@@ -164,7 +164,7 @@ const Register = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="w-full px-5 py-4 bg-white border-2 border-gray-200 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300 text-gray-800 font-medium"
+                      className="w-full px-5 py-4 bg-white border-2 border-gray-200 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 text-gray-800 font-medium"
                       placeholder="Create a password"
                     />
                   </div>
@@ -182,7 +182,7 @@ const Register = () => {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required
-                      className="w-full px-5 py-4 bg-white border-2 border-gray-200 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300 text-gray-800 font-medium"
+                      className="w-full px-5 py-4 bg-white border-2 border-gray-200 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 text-gray-800 font-medium"
                       placeholder="Confirm your password"
                     />
                   </div>
@@ -191,7 +191,7 @@ const Register = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex justify-center items-center py-4 px-6 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full flex justify-center items-center py-4 px-6 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? (
                     <div className="flex items-center space-x-3">
@@ -220,7 +220,7 @@ const Register = () => {
                 <div className="mt-8 text-center">
                   <Link 
                     to="/login" 
-                    className="inline-flex items-center px-6 py-3 bg-gray-100 hover:bg-gray-200 text-purple-700 font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl"
+                    className="inline-flex items-center px-6 py-3 bg-gray-100 hover:bg-gray-200 text-orange-700 font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl"
                   >
 
                     Sign in instead

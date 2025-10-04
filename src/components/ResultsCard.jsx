@@ -47,7 +47,7 @@ function ResultsCard({ summary }) {
           {topInterests.map((interest, i) => (
             <span
               key={i}
-              className="rounded-full bg-black text-white px-3 py-1 text-sm"
+              className="rounded-full bg-orange-500 text-white px-3 py-1 text-sm"
             >
               {interest}
             </span>
@@ -95,7 +95,7 @@ function ResultsCard({ summary }) {
               </div>
               <div className="h-2 w-full rounded bg-neutral-200 overflow-hidden">
                 <div
-                  className={clsx("h-2 bg-black")}
+                  className={clsx("h-2 bg-orange-500")}
                   style={{ width: `${Math.min(value * 20, 100)}%` }}
                 />
               </div>
@@ -113,13 +113,13 @@ function ResultsCard({ summary }) {
           rows={4}
           value={writingInterests}
           onChange={(e) => setWritingInterests(e.target.value)}
-          className="w-full rounded-xl border border-neutral-300 p-3 focus:ring-2 focus:ring-black"
+          className="w-full rounded-xl border border-neutral-300 p-3 focus:ring-2 focus:ring-orange-500"
           placeholder="e.g. tech trends, personal growth, entrepreneurship..."
         />
         <button
           onClick={handleSave}
           disabled={saving}
-          className="mt-3 px-5 py-2 rounded-xl bg-black text-white font-medium hover:shadow-md disabled:opacity-50"
+          className="mt-3 px-5 py-2 rounded-xl bg-orange-500 text-white font-medium hover:bg-orange-600 hover:shadow-md disabled:opacity-50"
         >
           {saving ? "Saving..." : "Save Interests"}
         </button>

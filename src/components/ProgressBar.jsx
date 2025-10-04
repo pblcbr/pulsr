@@ -6,9 +6,9 @@ const MotionDiv = motion.div;
 function ProgressBar({ percent }) {
   return (
     <div className="mb-8">
-      <div className="h-2 w-full rounded bg-neutral-200 overflow-hidden">
+      <div className="h-2 w-full rounded bg-orange-100 overflow-hidden">
         <MotionDiv
-          className="h-2 bg-black"
+          className="h-2 bg-orange-500"
           initial={{ width: 0 }}
           animate={{ width: `${percent}%` }}
           transition={{ type: "spring", stiffness: 120, damping: 20 }}

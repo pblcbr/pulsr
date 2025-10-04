@@ -69,7 +69,7 @@ function Questionnaire({ questions, onComplete }) {
         </p>
         <a
           href="/login"
-          className="mt-4 inline-block rounded-xl bg-black px-4 py-2 text-white"
+          className="mt-4 inline-block rounded-xl bg-orange-500 px-4 py-2 text-white transition-colors hover:bg-orange-600"
         >
           Sign in
         </a>
@@ -135,7 +135,7 @@ function Questionnaire({ questions, onComplete }) {
           exit="exit"
           className="rounded-2xl bg-white p-6 shadow-lg"
         >
-          <h2 className="text-xl font-medium">{current.title}</h2>
+          <h2 className="text-xl font-medium text-orange-500">{current.title}</h2>
 
           <div className="mt-6">
             {current.type === "choice" && (
@@ -161,8 +161,8 @@ function Questionnaire({ questions, onComplete }) {
                           className={clsx(
                             "group rounded-xl border p-4 text-left transition",
                             active
-                              ? "border-black bg-black text-white shadow-md"
-                              : "border-neutral-200 bg-white hover:border-neutral-400"
+                              ? "border-orange-500 bg-orange-500 text-white shadow-md"
+                              : "border-neutral-200 bg-white hover:border-orange-300"
                           )}
                           aria-pressed={active}
                         >
@@ -172,7 +172,7 @@ function Questionnaire({ questions, onComplete }) {
                               <span
                                 className={clsx(
                                   "ml-3 rounded-md px-2 py-0.5 text-xs",
-                                  active ? "bg-white text-black" : "bg-neutral-100 text-neutral-600"
+                                  active ? "bg-white text-orange-500" : "bg-neutral-100 text-neutral-600"
                                 )}
                               >
                                 {current.hotkeys[i]}
@@ -192,24 +192,31 @@ function Questionnaire({ questions, onComplete }) {
                 control={control}
                 name={current.key}
                 rules={{ required: current.required }}
-                render={({ field }) => (
-                  <div className="mt-4">
-                    <div className="mb-2 flex items-center justify-between text-sm text-neutral-600">
-                      <span>{current.leftLabel}</span>
-                      <span>{field.value ?? "—"}</span>
-                      <span>{current.rightLabel}</span>
+                render={({ field }) => {
+                  const currentValue = field.value ?? current.min;
+                  const percentage = ((currentValue - current.min) / (current.max - current.min)) * 100;
+                  return (
+                    <div className="mt-4">
+                      <div className="mb-2 flex items-center justify-between text-sm text-neutral-600">
+                        <span>{current.leftLabel}</span>
+                        <span>{field.value ?? "—"}</span>
+                        <span>{current.rightLabel}</span>
+                      </div>
+                      <input
+                        type="range"
+                        min={current.min}
+                        max={current.max}
+                        value={currentValue}
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                        style={{
+                          background: `linear-gradient(to right, #f97316 0%, #f97316 ${percentage}%, #fed7aa ${percentage}%, #fed7aa 100%)`
+                        }}
+                        className="w-full h-2 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-orange-500 [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-orange-500 [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:shadow-md"
+                        aria-label={current.title}
+                      />
                     </div>
-                    <input
-                      type="range"
-                      min={current.min}
-                      max={current.max}
-                      value={field.value ?? current.min}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                      className="w-full accent-black"
-                      aria-label={current.title}
-                    />
-                  </div>
-                )}
+                  );
+                }}
               />
             )}
           </div>
@@ -220,8 +227,10 @@ function Questionnaire({ questions, onComplete }) {
               onClick={goBack}
               disabled={step === 0}
               className={clsx(
-                "rounded-xl border px-4 py-2 text-sm",
-                step === 0 ? "cursor-not-allowed opacity-40" : "border-neutral-300 hover:border-neutral-500"
+                "rounded-xl border px-4 py-2 text-sm font-medium transition-colors",
+                step === 0
+                  ? "cursor-not-allowed opacity-40"
+                  : "border-orange-300 text-orange-700 hover:border-orange-400 hover:text-orange-700"
               )}
             >
               Back
@@ -233,9 +242,9 @@ function Questionnaire({ questions, onComplete }) {
                 onClick={goNext}
                 disabled={!isAnswered}
                 className={clsx(
-                  "rounded-xl px-5 py-2 text-sm font-medium",
+                  "rounded-xl px-5 py-2 text-sm font-medium transition-colors",
                   isAnswered
-                    ? "bg-black text-white hover:shadow-md"
+                    ? "bg-orange-500 text-white hover:bg-orange-600 hover:shadow-md"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 )}
               >
@@ -246,9 +255,9 @@ function Questionnaire({ questions, onComplete }) {
                 type="submit"
                 disabled={!isAnswered}
                 className={clsx(
-                  "rounded-xl px-5 py-2 text-sm font-medium",
+                  "rounded-xl px-5 py-2 text-sm font-medium transition-colors",
                   isAnswered
-                    ? "bg-black text-white hover:shadow-md"
+                    ? "bg-orange-500 text-white hover:bg-orange-600 hover:shadow-md"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 )}
               >

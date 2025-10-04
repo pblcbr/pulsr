@@ -510,12 +510,12 @@ const UserProfile = () => {
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow mb-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900">
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+            <div className="text-left">
+              <h2 className="text-xl font-semibold text-gray-900 text-left">
                 AI Personalized Content Strategy
               </h2>
-              <p className="text-gray-600">
+              <p className="text-gray-600 text-left">
                 Tailored pillars and publishing guidance based on your onboarding responses.
               </p>
             </div>
@@ -550,25 +550,25 @@ const UserProfile = () => {
               </p>
             </div>
           ) : (
-            <div className="mt-6 space-y-6">
+            <div className="mt-6 space-y-6 text-left">
               {profile.ai_persona_summary && (
-                <div>
-                  <h3 className="text-lg font-medium text-orange-600 mb-2">Persona Summary</h3>
-                  <p className="text-gray-700 leading-relaxed">
+                <div className="text-left">
+                  <h3 className="text-lg font-medium text-orange-600 mb-2 text-left">Persona Summary</h3>
+                  <p className="text-gray-700 leading-relaxed text-left">
                     {profile.ai_persona_summary}
                   </p>
                 </div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-4 bg-gray-50 rounded">
-                  <p className="text-sm text-gray-600 uppercase tracking-wide mb-1">Cadence</p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
+                <div className="p-4 bg-gray-50 rounded text-left">
+                  <p className="text-sm text-gray-600 uppercase tracking-wide mb-1 text-left">Cadence</p>
                   <p className="text-gray-900 font-medium">
                     {contentStrategy?.cadence || 'See pillars below'}
                   </p>
                 </div>
-                <div className="p-4 bg-gray-50 rounded">
-                  <p className="text-sm text-gray-600 uppercase tracking-wide mb-1">Call to Actions</p>
+                <div className="p-4 bg-gray-50 rounded text-left">
+                  <p className="text-sm text-gray-600 uppercase tracking-wide mb-1 text-left">Call to Actions</p>
                   <ul className="text-sm text-gray-900 space-y-1">
                     {callToActions.length > 0 ? (
                       callToActions.map((cta, index) => (
@@ -579,8 +579,8 @@ const UserProfile = () => {
                     )}
                   </ul>
                 </div>
-                <div className="p-4 bg-gray-50 rounded">
-                  <p className="text-sm text-gray-600 uppercase tracking-wide mb-1">Key Metrics</p>
+                <div className="p-4 bg-gray-50 rounded text-left">
+                  <p className="text-sm text-gray-600 uppercase tracking-wide mb-1 text-left">Key Metrics</p>
                   <ul className="text-sm text-gray-900 space-y-1">
                     {keyMetrics.length > 0 ? (
                       keyMetrics.map((metric, index) => (
@@ -594,8 +594,8 @@ const UserProfile = () => {
               </div>
 
               {contentMix.length > 0 && (
-                <div>
-                  <h3 className="text-lg font-medium text-orange-600 mb-3">Suggested Content Mix</h3>
+                <div className="text-left">
+                  <h3 className="text-lg font-medium text-orange-600 mb-3 text-left">Suggested Content Mix</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {contentMix.map((mix, index) => (
                       <div key={index} className="p-3 bg-white border border-gray-200 rounded">
